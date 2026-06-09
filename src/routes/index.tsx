@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { Check, Car, BarChart3, MessageCircle, Search, Zap, X, Sparkles, TrendingUp, Eye, Camera } from "lucide-react";
+import { Check, Car, BarChart3, MessageCircle, Search, Zap, X, Sparkles, TrendingUp, Eye, Camera, Wand2, Image as ImageIcon, Film, Send, Globe, Palette, FileText } from "lucide-react";
 import antesCar from "@/assets/antes-car.jpg";
 import depoisCar from "@/assets/depois-car.jpg";
 
@@ -41,14 +41,14 @@ function Hero() {
       <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
-            <Zap className="size-3" /> Para garajistas profissionais
+            <Zap className="size-3" /> Tudo-em-um para garajistas
           </span>
           <h1 className="mt-6 text-5xl md:text-7xl lg:text-8xl">
-            <span className="text-foreground">SUA GARAGEM</span><br />
-            <span className="text-primary">VIRTUAL PREMIUM</span>
+            <span className="text-foreground">DA PLACA AO</span><br />
+            <span className="text-primary">CARRO VENDIDO</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            Cadastre carros pela placa, monte um catálogo profissional e receba contatos qualificados direto no seu WhatsApp.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+            Site profissional com a sua marca, showroom de fotos, edição com IA, artes para feed e stories, Reels automáticos, disparo em massa no WhatsApp e dashboard — tudo em uma plataforma.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link to="/auth" search={{ mode: "register" }}>
@@ -65,10 +65,18 @@ function Hero() {
 }
 
 const features = [
-  { icon: Search, title: "BUSCA POR PLACA", desc: "Selecione marca, modelo e ano — o FIPE preenche automaticamente." },
-  { icon: Car, title: "CATÁLOGO PRÓPRIO", desc: "Sua loja em megagaragem.com/loja/seu-nome." },
-  { icon: MessageCircle, title: "LEAD NO WHATSAPP", desc: "Botão direto que abre conversa com cliente interessado." },
-  { icon: BarChart3, title: "DASHBOARD", desc: "Acompanhe visitas e cliques por veículo." },
+  { icon: Globe, title: "SITE PROFISSIONAL AUTOMÁTICO", desc: "Cadastrou? Pronto. Seu site white-label entra no ar com a sua marca, suas cores e seu domínio." },
+  { icon: Palette, title: "IDENTIDADE VISUAL DA SUA LOJA", desc: "Logo, cores e nome aplicados em todo o catálogo, artes e materiais — você no centro, sempre." },
+  { icon: Camera, title: "SHOWROOM DE FOTOS PRO", desc: "Galeria estilo concessionária premium para cada veículo do seu estoque." },
+  { icon: Wand2, title: "EDIÇÃO DE FOTOS COM IA", desc: "Fundo limpo, iluminação de estúdio e correção automática — sem precisar de designer." },
+  { icon: ImageIcon, title: "ARTES PARA FEED E STORIES", desc: "Posts 1:1 e Stories 9:16 gerados em 1 clique com preço, FIPE e CTA do WhatsApp." },
+  { icon: FileText, title: "DESCRIÇÃO/COPY COM IA", desc: "Texto profissional pronto para WhatsApp, feed e site — a partir dos dados FIPE." },
+  { icon: Film, title: "VÍDEOS REELS AUTOMÁTICOS", desc: "Reels prontos com fotos do carro, trilha e identidade visual da sua loja." },
+  { icon: Send, title: "DISPARO EM MASSA WHATSAPP", desc: "Envie o catálogo ou um veículo novo para toda a sua lista de contatos." },
+  { icon: Search, title: "CONSULTA FIPE AUTOMÁTICA", desc: "Marca, modelo e ano preenchidos automaticamente com o valor de tabela." },
+  { icon: MessageCircle, title: "LEADS DIRETO NO ZAP", desc: "Botão rastreado por veículo que abre conversa com o cliente." },
+  { icon: Car, title: "CATÁLOGO PRÓPRIO", desc: "Sua loja em megagaragem.com/loja/seu-nome ou no seu domínio." },
+  { icon: BarChart3, title: "DASHBOARD COMPLETO", desc: "Visitas, cliques no WhatsApp e conversão por veículo em tempo real." },
 ];
 
 function Features() {
@@ -95,8 +103,8 @@ function Features() {
 }
 
 const plans = [
-  { name: "STARTER", price: 97, features: ["Até 15 veículos", "Catálogo público", "Botão WhatsApp", "Dashboard básico", "Busca FIPE automática"], cta: "Começar agora" },
-  { name: "PRO", price: 197, featured: true, features: ["Veículos ilimitados", "Catálogo público", "Botão WhatsApp", "Dashboard completo", "Busca FIPE automática", "Suporte prioritário", "Domínio personalizado"], cta: "Assinar Pro" },
+  { name: "STARTER", price: 97, features: ["Até 15 veículos", "Site white-label com sua marca", "Catálogo e showroom público", "Botão WhatsApp rastreado", "Consulta FIPE automática", "Descrição com IA", "Artes para feed e stories", "Dashboard básico"], cta: "Começar agora" },
+  { name: "PRO", price: 197, featured: true, features: ["Veículos ilimitados", "Tudo do Starter, mais:", "Domínio personalizado próprio", "Edição de fotos com IA", "Vídeos Reels automáticos", "Disparo em massa no WhatsApp", "Dashboard completo + relatórios", "Suporte prioritário"], cta: "Assinar Pro" },
 ];
 
 function Plans() {
@@ -263,12 +271,85 @@ function BeforeAfter() {
   );
 }
 
+function WhiteLabel() {
+  return (
+    <section className="border-t border-border/40 bg-background py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
+              <Globe className="size-3" /> Site white-label
+            </span>
+            <h2 className="mt-6 text-4xl md:text-5xl">
+              SEU SITE, <span className="text-primary">SUA MARCA</span>.<br />
+              NO AR EM MINUTOS.
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Quando você cadastra a sua loja, o sistema inteiro vira o <strong className="text-foreground">seu site profissional</strong> — com o seu logo, suas cores, seu nome e seu domínio. O cliente final nem percebe que existe MegaGaragem por trás. Você só aparece. Você vende.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {[
+                "Logo e cores da sua loja em todo o catálogo, artes e Reels",
+                "Domínio próprio (suaempresa.com.br) — sem precisar de programador",
+                "Header, hero e rodapé com a identidade visual da sua marca",
+                "Compartilhe o link e o cliente vê SÓ a sua marca",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3 text-sm text-foreground">
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary" /> {t}
+                </li>
+              ))}
+            </ul>
+            <Link to="/auth" search={{ mode: "register" }} className="mt-8 inline-block">
+              <Button size="lg" className="shadow-glow">Criar meu site agora</Button>
+            </Link>
+          </div>
+
+          <div className="relative">
+            <div className="rounded-2xl border border-border bg-card p-2 shadow-glow">
+              <div className="flex items-center gap-1.5 px-3 py-2">
+                <span className="size-2.5 rounded-full bg-destructive/70" />
+                <span className="size-2.5 rounded-full bg-primary/70" />
+                <span className="size-2.5 rounded-full bg-muted-foreground/40" />
+                <span className="ml-3 truncate rounded-md bg-background px-3 py-1 text-xs text-muted-foreground">
+                  autocarspremium.com.br
+                </span>
+              </div>
+              <div className="overflow-hidden rounded-xl bg-background">
+                <div className="flex items-center justify-between border-b border-border px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="size-7 rounded-md bg-gradient-to-br from-primary to-primary/60" />
+                    <span className="font-display text-lg tracking-wide">AUTOCARS PREMIUM</span>
+                  </div>
+                  <div className="hidden gap-4 text-xs text-muted-foreground sm:flex">
+                    <span>Estoque</span><span>Sobre</span><span>Contato</span>
+                  </div>
+                </div>
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img src={depoisCar} alt="Preview do site da loja" className="size-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                  <div className="absolute bottom-4 left-5 right-5">
+                    <p className="text-xs uppercase tracking-wider text-primary">Destaque da semana</p>
+                    <p className="font-display text-2xl">HONDA CIVIC TOURING 2022</p>
+                    <p className="text-sm text-muted-foreground">R$ 87.900 · 32.000 km</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pointer-events-none absolute -inset-4 -z-10 bg-grad-primary opacity-20 blur-3xl" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main>
         <Hero />
+        <WhiteLabel />
         <BeforeAfter />
         <Features />
         <Plans />
