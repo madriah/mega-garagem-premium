@@ -41,14 +41,14 @@ function Hero() {
       <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
-            <Zap className="size-3" /> Para garajistas profissionais
+            <Zap className="size-3" /> Tudo-em-um para garajistas
           </span>
           <h1 className="mt-6 text-5xl md:text-7xl lg:text-8xl">
-            <span className="text-foreground">SUA GARAGEM</span><br />
-            <span className="text-primary">VIRTUAL PREMIUM</span>
+            <span className="text-foreground">DA PLACA AO</span><br />
+            <span className="text-primary">CARRO VENDIDO</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            Cadastre carros pela placa, monte um catálogo profissional e receba contatos qualificados direto no seu WhatsApp.
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+            Site profissional com a sua marca, showroom de fotos, edição com IA, artes para feed e stories, Reels automáticos, disparo em massa no WhatsApp e dashboard — tudo em uma plataforma.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link to="/auth" search={{ mode: "register" }}>
