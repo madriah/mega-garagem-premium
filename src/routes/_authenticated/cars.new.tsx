@@ -184,8 +184,46 @@ function NewCar() {
             </div>
           </div>
           <div>
-            <Label>Descrição</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" rows={4} placeholder="Único dono, revisões em dia..." />
+            <div className="flex items-center justify-between">
+              <Label>Descrição</Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={!fipeData || aiLoading}
+                onClick={async () => {
+                  if (!fipeData) return;
+                  setAiLoading(true);
+                  try {
+                    const r = await genDesc({
+                      data: {
+                        brand: fipeData.brand,
+                        model: fipeData.model,
+                        year: fipeData.year,
+                        fuel: fipeData.fuel,
+                        km: Number(km) || 0,
+                        color,
+                        fipe_value: fipeData.fipe_value,
+                        sale_price: Number(salePrice) || 0,
+                        store_name: profile?.store_name ?? "",
+                        notes: description,
+                      },
+                    });
+                    setDescription(r.description);
+                    toast.success("Descrição gerada");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Erro na IA");
+                  } finally {
+                    setAiLoading(false);
+                  }
+                }}
+              >
+                {aiLoading ? <Loader2 className="size-3.5 animate-spin" /> : <Wand2 className="size-3.5" />}
+                Gerar com IA
+              </Button>
+            </div>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" rows={5} placeholder="Único dono, revisões em dia... ou clique em Gerar com IA" />
+            <p className="mt-1 text-xs text-muted-foreground">A IA usa os dados FIPE + km/cor para criar uma descrição vendedora pronta para WhatsApp, feed e site.</p>
           </div>
         </section>
 
