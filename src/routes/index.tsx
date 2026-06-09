@@ -103,8 +103,8 @@ function Features() {
 }
 
 const plans = [
-  { name: "STARTER", price: 97, features: ["Até 15 veículos", "Catálogo público", "Botão WhatsApp", "Dashboard básico", "Busca FIPE automática"], cta: "Começar agora" },
-  { name: "PRO", price: 197, featured: true, features: ["Veículos ilimitados", "Catálogo público", "Botão WhatsApp", "Dashboard completo", "Busca FIPE automática", "Suporte prioritário", "Domínio personalizado"], cta: "Assinar Pro" },
+  { name: "STARTER", price: 97, features: ["Até 15 veículos", "Site white-label com sua marca", "Catálogo e showroom público", "Botão WhatsApp rastreado", "Consulta FIPE automática", "Descrição com IA", "Artes para feed e stories", "Dashboard básico"], cta: "Começar agora" },
+  { name: "PRO", price: 197, featured: true, features: ["Veículos ilimitados", "Tudo do Starter, mais:", "Domínio personalizado próprio", "Edição de fotos com IA", "Vídeos Reels automáticos", "Disparo em massa no WhatsApp", "Dashboard completo + relatórios", "Suporte prioritário"], cta: "Assinar Pro" },
 ];
 
 function Plans() {
