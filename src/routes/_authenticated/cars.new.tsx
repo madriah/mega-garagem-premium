@@ -17,8 +17,10 @@ import { Loader2, Upload, X, Sparkles, Wand2 } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/cars/new")({ component: NewCar });
 
 function NewCar() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const genDesc = useServerFn(generateDescription);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const [plate, setPlate] = useState("");
   const [brandCode, setBrandCode] = useState("");
