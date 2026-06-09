@@ -1,22 +1,26 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { fipe, parseFipeValue, formatBRL, type FipeItem } from "@/lib/fipe";
+import { generateDescription } from "@/lib/ai.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Sparkles } from "lucide-react";
+import { Loader2, Upload, X, Sparkles, Wand2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/cars/new")({ component: NewCar });
 
 function NewCar() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const genDesc = useServerFn(generateDescription);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const [plate, setPlate] = useState("");
   const [brandCode, setBrandCode] = useState("");
@@ -180,8 +184,46 @@ function NewCar() {
             </div>
           </div>
           <div>
-            <Label>Descrição</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" rows={4} placeholder="Único dono, revisões em dia..." />
+            <div className="flex items-center justify-between">
+              <Label>Descrição</Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={!fipeData || aiLoading}
+                onClick={async () => {
+                  if (!fipeData) return;
+                  setAiLoading(true);
+                  try {
+                    const r = await genDesc({
+                      data: {
+                        brand: fipeData.brand,
+                        model: fipeData.model,
+                        year: fipeData.year,
+                        fuel: fipeData.fuel,
+                        km: Number(km) || 0,
+                        color,
+                        fipe_value: fipeData.fipe_value,
+                        sale_price: Number(salePrice) || 0,
+                        store_name: profile?.store_name ?? "",
+                        notes: description,
+                      },
+                    });
+                    setDescription(r.description);
+                    toast.success("Descrição gerada");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Erro na IA");
+                  } finally {
+                    setAiLoading(false);
+                  }
+                }}
+              >
+                {aiLoading ? <Loader2 className="size-3.5 animate-spin" /> : <Wand2 className="size-3.5" />}
+                Gerar com IA
+              </Button>
+            </div>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1.5" rows={5} placeholder="Único dono, revisões em dia... ou clique em Gerar com IA" />
+            <p className="mt-1 text-xs text-muted-foreground">A IA usa os dados FIPE + km/cor para criar uma descrição vendedora pronta para WhatsApp, feed e site.</p>
           </div>
         </section>
 

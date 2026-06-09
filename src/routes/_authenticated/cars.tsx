@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
 import { PlusCircle, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { ArtGenerator } from "@/components/ArtGenerator";
 
 export const Route = createFileRoute("/_authenticated/cars")({ component: CarsLayout });
 
@@ -66,11 +67,18 @@ function CarsList() {
                   <span className="text-muted-foreground">{v.year} · {v.km.toLocaleString("pt-BR")} km</span>
                   <span className="font-display text-xl text-primary">{formatBRL(Number(v.sale_price))}</span>
                 </div>
-                <div className="mt-4 flex gap-2">
+                <div className="mt-4 flex flex-wrap gap-2">
                   {profile && (
-                    <Link to="/loja/$slug/$vehicleId" params={{ slug: profile.store_slug, vehicleId: v.id }} target="_blank" className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full"><Eye className="size-3.5" /> Ver</Button>
-                    </Link>
+                    <>
+                      <Link to="/loja/$slug/$vehicleId" params={{ slug: profile.store_slug, vehicleId: v.id }} target="_blank" className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full"><Eye className="size-3.5" /> Ver</Button>
+                      </Link>
+                      <ArtGenerator
+                        vehicle={{ brand: v.brand, model: v.model, year: v.year, fuel: v.fuel, km: v.km, color: v.color, sale_price: Number(v.sale_price), fipe_value: v.fipe_value ? Number(v.fipe_value) : null, photos: v.photos ?? [] }}
+                        storeName={profile.store_name}
+                        whatsapp={profile.whatsapp}
+                      />
+                    </>
                   )}
                   <Button variant="ghost" size="sm" onClick={() => remove(v.id)}><Trash2 className="size-3.5" /></Button>
                 </div>
