@@ -76,7 +76,7 @@ function VehiclePage() {
             </div>
             {vehicle.photos && vehicle.photos.length > 1 && (
               <div className="mt-3 grid grid-cols-5 gap-2">
-                {vehicle.photos.map((p, i) => (
+                {vehicle.photos.map((p: string, i: number) => (
                   <button key={i} onClick={() => setActivePhoto(i)} className={`aspect-square overflow-hidden rounded-lg border-2 ${i === activePhoto ? "border-primary" : "border-transparent opacity-70"}`}>
                     <img src={p} alt="" className="size-full object-cover" />
                   </button>

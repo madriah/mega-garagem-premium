@@ -58,7 +58,7 @@ function StorePage() {
           <p className="py-20 text-center text-muted-foreground">Nenhum veículo disponível no momento.</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {vehicles.map((v) => (
+            {vehicles.map((v: any) => (
               <Link key={v.id} to="/loja/$slug/$vehicleId" params={{ slug: profile.store_slug, vehicleId: v.id }} className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-card-premium">
                 <div className="aspect-video overflow-hidden bg-muted">
                   {v.photos?.[0] ? (
