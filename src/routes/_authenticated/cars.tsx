@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
 import { PlusCircle, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { ArtGenerator } from "@/components/ArtGenerator";
 
 export const Route = createFileRoute("/_authenticated/cars")({ component: CarsLayout });
 
