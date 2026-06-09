@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { Check, Car, BarChart3, MessageCircle, Search, Zap } from "lucide-react";
+import { Check, Car, BarChart3, MessageCircle, Search, Zap, X, Sparkles, TrendingUp, Eye, Camera } from "lucide-react";
+import antesCar from "@/assets/antes-car.jpg";
+import depoisCar from "@/assets/depois-car.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -147,12 +149,127 @@ function Footer() {
   );
 }
 
+function BeforeAfter() {
+  return (
+    <section className="border-t border-border/40 bg-background py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
+            <Sparkles className="size-3" /> Garagem Inteligente
+          </span>
+          <h2 className="mt-6 text-4xl md:text-5xl">
+            DE AMADOR PARA <span className="text-primary">PROFISSIONAL</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground">
+            A diferença entre um carro parado no grupo de WhatsApp e um carro vendido em 7 dias está em <strong className="text-foreground">como você apresenta o seu estoque.</strong>
+          </p>
+        </div>
+
+        <div className="mt-16 grid gap-6 lg:grid-cols-2">
+          {/* ANTES */}
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full bg-background/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground backdrop-blur">
+              <X className="size-3" /> Antes
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+              <img
+                src={antesCar}
+                alt="Foto amadora de carro tirada com celular em ambiente bagunçado"
+                width={1024}
+                height={768}
+                loading="lazy"
+                className="size-full object-cover grayscale-[40%]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+            </div>
+            <div className="p-6">
+              <h3 className="text-2xl text-foreground">FOTO NO GRUPO DO ZAP</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Catálogo improvisado, fotos sem padrão.</p>
+              <ul className="mt-5 space-y-2.5 text-sm">
+                {[
+                  "Foto torta, tirada às pressas no quintal",
+                  "Sem ficha técnica, sem FIPE, sem confiança",
+                  "Cliente pergunta tudo de novo no WhatsApp",
+                  "Sem histórico de visitas nem cliques",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-3 text-muted-foreground">
+                    <X className="mt-0.5 size-4 shrink-0 text-destructive" /> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* DEPOIS */}
+          <div className="relative overflow-hidden rounded-2xl border border-primary/60 bg-card shadow-glow">
+            <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
+              <Sparkles className="size-3" /> Depois
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+              <img
+                src={depoisCar}
+                alt="Foto profissional de carro em estilo catálogo premium"
+                width={1024}
+                height={768}
+                loading="lazy"
+                className="size-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-primary">FIPE R$ 89.450</div>
+                  <div className="font-display text-3xl text-foreground leading-none">R$ 87.900</div>
+                </div>
+                <div className="rounded-lg bg-primary px-3 py-2 text-xs font-bold uppercase text-primary-foreground">
+                  <MessageCircle className="inline size-3.5" /> WhatsApp
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-2xl text-primary">CATÁLOGO MEGAGARAGEM</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Vitrine profissional que vende sozinha.</p>
+              <ul className="mt-5 space-y-2.5 text-sm">
+                {[
+                  "Layout premium com galeria, ficha e preço FIPE",
+                  "Link próprio: megagaragem.com/loja/sua-loja",
+                  "Botão WhatsApp rastreado por veículo",
+                  "Dashboard de visitas e leads em tempo real",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-3 text-foreground">
+                    <Check className="mt-0.5 size-4 shrink-0 text-primary" /> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-3">
+          {[
+            { icon: Camera, value: "+3x", label: "Mais cliques em anúncios com fotos profissionais" },
+            { icon: Eye, value: "92%", label: "Dos clientes decidem pela primeira foto" },
+            { icon: TrendingUp, value: "7 dias", label: "Tempo médio de venda no catálogo MegaGaragem" },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl border border-border bg-card/50 p-5 text-center">
+              <s.icon className="mx-auto size-5 text-primary" />
+              <div className="mt-3 font-display text-4xl text-foreground">{s.value}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main>
         <Hero />
+        <BeforeAfter />
         <Features />
         <Plans />
       </main>
