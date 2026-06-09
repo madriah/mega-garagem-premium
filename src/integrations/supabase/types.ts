@@ -14,7 +14,148 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          store_name: string
+          store_slug: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          store_name: string
+          store_slug: string
+          updated_at?: string
+          whatsapp: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          store_name?: string
+          store_slug?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      vehicle_views: {
+        Row: {
+          created_at: string
+          id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_views_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          brand: string | null
+          color: string | null
+          created_at: string
+          description: string | null
+          fipe_value: number | null
+          fuel: string | null
+          id: string
+          is_active: boolean
+          km: number
+          model: string | null
+          photos: string[]
+          plate: string
+          sale_price: number
+          updated_at: string
+          user_id: string
+          year: string | null
+        }
+        Insert: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          fipe_value?: number | null
+          fuel?: string | null
+          id?: string
+          is_active?: boolean
+          km?: number
+          model?: string | null
+          photos?: string[]
+          plate: string
+          sale_price: number
+          updated_at?: string
+          user_id: string
+          year?: string | null
+        }
+        Update: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          fipe_value?: number | null
+          fuel?: string | null
+          id?: string
+          is_active?: boolean
+          km?: number
+          model?: string | null
+          photos?: string[]
+          plate?: string
+          sale_price?: number
+          updated_at?: string
+          user_id?: string
+          year?: string | null
+        }
+        Relationships: []
+      }
+      whatsapp_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_clicks_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
