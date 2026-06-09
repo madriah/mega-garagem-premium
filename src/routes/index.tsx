@@ -271,12 +271,85 @@ function BeforeAfter() {
   );
 }
 
+function WhiteLabel() {
+  return (
+    <section className="border-t border-border/40 bg-background py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
+              <Globe className="size-3" /> Site white-label
+            </span>
+            <h2 className="mt-6 text-4xl md:text-5xl">
+              SEU SITE, <span className="text-primary">SUA MARCA</span>.<br />
+              NO AR EM MINUTOS.
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Quando você cadastra a sua loja, o sistema inteiro vira o <strong className="text-foreground">seu site profissional</strong> — com o seu logo, suas cores, seu nome e seu domínio. O cliente final nem percebe que existe MegaGaragem por trás. Você só aparece. Você vende.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {[
+                "Logo e cores da sua loja em todo o catálogo, artes e Reels",
+                "Domínio próprio (suaempresa.com.br) — sem precisar de programador",
+                "Header, hero e rodapé com a identidade visual da sua marca",
+                "Compartilhe o link e o cliente vê SÓ a sua marca",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3 text-sm text-foreground">
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary" /> {t}
+                </li>
+              ))}
+            </ul>
+            <Link to="/auth" search={{ mode: "register" }} className="mt-8 inline-block">
+              <Button size="lg" className="shadow-glow">Criar meu site agora</Button>
+            </Link>
+          </div>
+
+          <div className="relative">
+            <div className="rounded-2xl border border-border bg-card p-2 shadow-glow">
+              <div className="flex items-center gap-1.5 px-3 py-2">
+                <span className="size-2.5 rounded-full bg-destructive/70" />
+                <span className="size-2.5 rounded-full bg-primary/70" />
+                <span className="size-2.5 rounded-full bg-muted-foreground/40" />
+                <span className="ml-3 truncate rounded-md bg-background px-3 py-1 text-xs text-muted-foreground">
+                  autocarspremium.com.br
+                </span>
+              </div>
+              <div className="overflow-hidden rounded-xl bg-background">
+                <div className="flex items-center justify-between border-b border-border px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="size-7 rounded-md bg-gradient-to-br from-primary to-primary/60" />
+                    <span className="font-display text-lg tracking-wide">AUTOCARS PREMIUM</span>
+                  </div>
+                  <div className="hidden gap-4 text-xs text-muted-foreground sm:flex">
+                    <span>Estoque</span><span>Sobre</span><span>Contato</span>
+                  </div>
+                </div>
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img src={depoisCar} alt="Preview do site da loja" className="size-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                  <div className="absolute bottom-4 left-5 right-5">
+                    <p className="text-xs uppercase tracking-wider text-primary">Destaque da semana</p>
+                    <p className="font-display text-2xl">HONDA CIVIC TOURING 2022</p>
+                    <p className="text-sm text-muted-foreground">R$ 87.900 · 32.000 km</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="pointer-events-none absolute -inset-4 -z-10 bg-grad-primary opacity-20 blur-3xl" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main>
         <Hero />
+        <WhiteLabel />
         <BeforeAfter />
         <Features />
         <Plans />
