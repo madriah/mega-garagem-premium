@@ -343,6 +343,185 @@ function WhiteLabel() {
   );
 }
 
+function FeatureDemos() {
+  return (
+    <section className="border-t border-border/40 bg-background py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
+            <Eye className="size-3" /> Veja funcionando
+          </span>
+          <h2 className="mt-6 text-4xl md:text-5xl">
+            CADA FUNÇÃO, <span className="text-primary">DEMONSTRADA</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground">Não é promessa — é o que aparece no seu painel no primeiro clique.</p>
+        </div>
+
+        <div className="mt-16 space-y-10">
+          {/* 1. FIPE por placa */}
+          <div className="grid items-center gap-8 rounded-2xl border border-border bg-card p-6 md:p-10 lg:grid-cols-2">
+            <div>
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary"><Search className="size-3.5" /> Consulta por placa</span>
+              <h3 className="mt-3 text-2xl md:text-3xl">DIGITA A PLACA. O CARRO SE CADASTRA SOZINHO.</h3>
+              <p className="mt-3 text-sm text-muted-foreground">Marca, modelo, ano, combustível e FIPE preenchidos automaticamente. Você só confirma o preço de venda.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background p-5 font-mono text-sm">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Placa</div>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="rounded-md border-2 border-foreground bg-foreground/5 px-4 py-2 text-2xl font-bold tracking-widest">ABC-1D23</div>
+                <Button size="sm" className="ml-auto"><Search className="size-3.5" /> Buscar</Button>
+              </div>
+              <div className="mt-5 space-y-2 border-t border-border pt-4 text-xs">
+                {[["Marca","HONDA"],["Modelo","CIVIC TOURING 1.5 TURBO"],["Ano","2022"],["Combustível","Flex"],["FIPE","R$ 89.450"]].map(([k,v]) => (
+                  <div key={k} className="flex justify-between"><span className="text-muted-foreground">{k}</span><span className="text-foreground">{v}</span></div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Descrição com IA */}
+          <div className="grid items-center gap-8 rounded-2xl border border-border bg-card p-6 md:p-10 lg:grid-cols-2">
+            <div className="order-2 lg:order-1 rounded-xl border border-border bg-background p-5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold uppercase tracking-wider text-primary">Copy gerada</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-primary"><Wand2 className="size-3" /> IA</span>
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-foreground">
+                🚗 <strong>Honda Civic Touring 2022</strong> — único dono, 32.000 km, revisões em dia na concessionária. Motor 1.5 Turbo, câmbio CVT, bancos em couro, teto solar e central multimídia.
+                <br /><br />
+                ✅ FIPE R$ 89.450 — leva por <strong>R$ 87.900</strong>
+                <br />📲 Chama no WhatsApp: (11) 9 9999-0000
+              </p>
+            </div>
+            <div className="order-1 lg:order-2">
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary"><FileText className="size-3.5" /> Descrição automática</span>
+              <h3 className="mt-3 text-2xl md:text-3xl">TEXTO PROFISSIONAL EM 1 CLIQUE.</h3>
+              <p className="mt-3 text-sm text-muted-foreground">Pronta para colar no grupo de WhatsApp, no feed do Instagram e na ficha do site. Tom de loja séria, sem clichê de revenda.</p>
+            </div>
+          </div>
+
+          {/* 3. Artes Feed + Story */}
+          <div className="rounded-2xl border border-border bg-card p-6 md:p-10">
+            <div className="mx-auto max-w-2xl text-center">
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary"><ImageIcon className="size-3.5" /> Artes prontas</span>
+              <h3 className="mt-3 text-2xl md:text-3xl">FEED 1:1 E STORY 9:16 GERADOS NA HORA.</h3>
+              <p className="mt-3 text-sm text-muted-foreground">Com sua marca, ficha técnica, FIPE cortada em vermelho e o preço de venda em destaque.</p>
+            </div>
+            <div className="mt-8 flex flex-wrap justify-center gap-6">
+              {/* Feed mockup */}
+              <ArtMockup ratio="1 / 1" widthClass="w-64" label="FEED 1:1" />
+              {/* Story mockup */}
+              <ArtMockup ratio="9 / 16" widthClass="w-44" label="STORY 9:16" />
+              {/* Reels mockup */}
+              <div className="w-44">
+                <div className="relative aspect-[9/16] overflow-hidden rounded-xl border border-primary/60 bg-black shadow-glow">
+                  <img src={depoisCar} alt="Reels do veículo" className="size-full object-cover opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                  <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold uppercase text-destructive-foreground">
+                    <Film className="size-2.5" /> Reels
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex size-12 items-center justify-center rounded-full bg-background/90 text-foreground">▶</div>
+                  </div>
+                  <div className="absolute bottom-2 left-2 right-2 text-[10px] text-white">
+                    <div className="font-bold">CIVIC TOURING 2022</div>
+                    <div className="text-primary">R$ 87.900</div>
+                  </div>
+                </div>
+                <div className="mt-2 text-center text-xs uppercase tracking-wider text-muted-foreground">REELS 9:16</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Disparo WhatsApp */}
+          <div className="grid items-center gap-8 rounded-2xl border border-border bg-card p-6 md:p-10 lg:grid-cols-2">
+            <div>
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary"><Send className="size-3.5" /> Disparo em massa</span>
+              <h3 className="mt-3 text-2xl md:text-3xl">UM CLIQUE. TODA A SUA LISTA RECEBE.</h3>
+              <p className="mt-3 text-sm text-muted-foreground">Envie um veículo novo ou o catálogo completo para todos os seus contatos no WhatsApp.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background p-5">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-2"><MessageCircle className="size-3.5 text-primary" /> Disparo: Civic Touring 2022</span>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">847 contatos</span>
+              </div>
+              <div className="mt-4 space-y-2">
+                {[["Entregues","842","bg-primary"],["Lidos","711","bg-primary/70"],["Responderam","34","bg-primary/40"]].map(([l,v,c]) => (
+                  <div key={l}>
+                    <div className="flex justify-between text-xs"><span className="text-muted-foreground">{l}</span><span className="text-foreground">{v}</span></div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className={`h-full ${c}`} style={{ width: l === "Entregues" ? "99%" : l === "Lidos" ? "84%" : "4%" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button size="sm" className="mt-5 w-full"><Send className="size-3.5" /> Enviar novamente</Button>
+            </div>
+          </div>
+
+          {/* 5. Dashboard */}
+          <div className="grid items-center gap-8 rounded-2xl border border-border bg-card p-6 md:p-10 lg:grid-cols-2">
+            <div className="order-2 lg:order-1 rounded-xl border border-border bg-background p-5">
+              <div className="grid grid-cols-3 gap-3">
+                {[["Visitas","2.348","+18%"],["Cliques Zap","412","+27%"],["Leads","87","+12%"]].map(([l,v,d]) => (
+                  <div key={l} className="rounded-lg border border-border bg-card p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{l}</div>
+                    <div className="mt-1 font-display text-xl text-foreground">{v}</div>
+                    <div className="text-[10px] text-primary">{d}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex h-24 items-end gap-1.5 rounded-lg border border-border bg-card p-3">
+                {[40,55,38,72,60,85,68,90,76,95,82,100].map((h,i) => (
+                  <div key={i} className="flex-1 rounded-sm bg-gradient-to-t from-primary/30 to-primary" style={{ height: `${h}%` }} />
+                ))}
+              </div>
+              <div className="mt-1 text-center text-[10px] uppercase tracking-wider text-muted-foreground">Últimos 12 dias</div>
+            </div>
+            <div className="order-1 lg:order-2">
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary"><BarChart3 className="size-3.5" /> Dashboard</span>
+              <h3 className="mt-3 text-2xl md:text-3xl">SAIBA QUAL CARRO VENDE — E QUAL ESTÁ PARADO.</h3>
+              <p className="mt-3 text-sm text-muted-foreground">Visitas, cliques no WhatsApp e leads por veículo, em tempo real. Decisão por dado, não por achismo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ArtMockup({ ratio, widthClass, label }: { ratio: string; widthClass: string; label: string }) {
+  return (
+    <div className={widthClass}>
+      <div className="overflow-hidden rounded-xl border border-border bg-black shadow-glow" style={{ aspectRatio: ratio }}>
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between px-3 pt-3">
+            <div className="flex items-center gap-1.5">
+              <div className="size-5 rounded bg-gradient-to-br from-primary to-primary/60" />
+              <span className="text-[9px] font-bold uppercase tracking-wider text-white">AUTOCARS</span>
+            </div>
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold uppercase text-primary-foreground">Oferta</span>
+          </div>
+          <div className="relative mx-3 mt-2 flex-1 overflow-hidden rounded-md">
+            <img src={depoisCar} alt={label} className="size-full object-cover" />
+          </div>
+          <div className="px-3 py-2 text-white">
+            <div className="text-[9px] font-bold uppercase tracking-wider">CIVIC TOURING 22</div>
+            <div className="mt-0.5 flex items-baseline gap-1.5">
+              <span className="text-[8px] text-white/60 line-through decoration-destructive decoration-2">FIPE 89.450</span>
+            </div>
+            <div className="font-display text-base leading-none text-primary">R$ 87.900</div>
+            <div className="mt-1.5 flex items-center justify-center gap-1 rounded-md bg-primary px-2 py-1 text-[8px] font-bold uppercase text-primary-foreground">
+              <MessageCircle className="size-2.5" /> (11) 9 9999-0000
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-2 text-center text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -352,6 +531,7 @@ function Landing() {
         <WhiteLabel />
         <BeforeAfter />
         <Features />
+        <FeatureDemos />
         <Plans />
       </main>
       <Footer />
