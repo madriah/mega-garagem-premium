@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { TransformationCarousel } from "@/components/TransformationCarousel";
 import { Check, Car, BarChart3, MessageCircle, Search, Zap, X, Sparkles, TrendingUp, Eye, Camera, Wand2, Image as ImageIcon, Film, Send, Globe, Palette, FileText } from "lucide-react";
 import antesCar from "@/assets/antes-car.jpg";
 import depoisCar from "@/assets/depois-car.jpg";
@@ -528,6 +529,7 @@ function Landing() {
       <Header />
       <main>
         <Hero />
+        <TransformationCarousel />
         <WhiteLabel />
         <BeforeAfter />
         <Features />
