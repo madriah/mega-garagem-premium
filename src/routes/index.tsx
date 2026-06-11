@@ -529,6 +529,7 @@ function Landing() {
       <Header />
       <main>
         <Hero />
+        <TransformationCarousel />
         <WhiteLabel />
         <BeforeAfter />
         <Features />
