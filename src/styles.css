@@ -118,3 +118,8 @@
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-card-premium { box-shadow: var(--shadow-card); }
 }
+
+@keyframes carousel-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
