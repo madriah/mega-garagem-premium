@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Download, Sparkles, Loader2 } from "lucide-react";
 import { formatBRL } from "@/lib/fipe";
+import { signPhoto } from "@/lib/photo-url";
 
 export type ArtVehicle = {
   brand: string | null;
@@ -76,7 +77,8 @@ async function render(format: Format, v: ArtVehicle, storeName: string, whatsapp
   const photoH = format === "story" ? Math.round(h * 0.58) : Math.round(h * 0.55);
   if (v.photos[0]) {
     try {
-      const img = await loadImage(v.photos[0]);
+      const signed = await signPhoto(v.photos[0]);
+      const img = await loadImage(signed || v.photos[0]);
       drawCover(ctx, img, 0, 0, w, photoH);
     } catch {
       ctx.fillStyle = "#2a2a2a";

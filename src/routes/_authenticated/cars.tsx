@@ -7,6 +7,7 @@ import { formatBRL } from "@/lib/fipe";
 import { PlusCircle, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { ArtGenerator } from "@/components/ArtGenerator";
+import { PhotoImg } from "@/components/PhotoImg";
 
 export const Route = createFileRoute("/_authenticated/cars")({ component: CarsLayout });
 
@@ -58,7 +59,7 @@ function CarsList() {
           {data.map((v) => (
             <div key={v.id} className="overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary/50">
               <div className="aspect-video bg-muted">
-                {v.photos?.[0] ? <img src={v.photos[0]} alt="" className="size-full object-cover" /> : null}
+                {v.photos?.[0] ? <PhotoImg path={v.photos[0]} alt="" className="size-full object-cover" /> : null}
               </div>
               <div className="p-4">
                 <p className="truncate text-xs uppercase tracking-wider text-muted-foreground">{v.brand}</p>

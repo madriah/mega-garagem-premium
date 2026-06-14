@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { signPhotos } from "@/lib/photo-url";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
@@ -12,14 +13,15 @@ export const Route = createFileRoute("/loja/$slug/$vehicleId")({
     if (!profile) throw notFound();
     const { data: vehicle } = await supabase.from("vehicles").select("*").eq("id", params.vehicleId).eq("user_id", profile.id).maybeSingle();
     if (!vehicle) throw notFound();
-    return { profile, vehicle };
+    const signed = await signPhotos(vehicle.photos ?? []);
+    return { profile, vehicle: { ...vehicle, _signedPhotos: signed } };
   },
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
           { title: `${loaderData.vehicle.brand} ${loaderData.vehicle.model} — ${loaderData.profile.store_name}` },
           { name: "description", content: `${loaderData.vehicle.brand} ${loaderData.vehicle.model} ${loaderData.vehicle.year} por ${formatBRL(Number(loaderData.vehicle.sale_price))}` },
-          { property: "og:image", content: loaderData.vehicle.photos?.[0] ?? "" },
+          { property: "og:image", content: loaderData.vehicle._signedPhotos?.[0] ?? "" },
         ]
       : [],
   }),
@@ -68,15 +70,15 @@ function VehiclePage() {
         <div className="grid gap-8 lg:grid-cols-5">
           <div className="lg:col-span-3">
             <div className="aspect-video overflow-hidden rounded-xl bg-muted">
-              {vehicle.photos?.[activePhoto] ? (
-                <img src={vehicle.photos[activePhoto]} alt="" className="size-full object-cover" />
+              {vehicle._signedPhotos?.[activePhoto] ? (
+                <img src={vehicle._signedPhotos[activePhoto]} alt="" className="size-full object-cover" />
               ) : (
                 <div className="flex size-full items-center justify-center text-muted-foreground">Sem foto</div>
               )}
             </div>
-            {vehicle.photos && vehicle.photos.length > 1 && (
+            {vehicle._signedPhotos && vehicle._signedPhotos.length > 1 && (
               <div className="mt-3 grid grid-cols-5 gap-2">
-                {vehicle.photos.map((p: string, i: number) => (
+                {vehicle._signedPhotos.map((p: string, i: number) => (
                   <button key={i} onClick={() => setActivePhoto(i)} className={`aspect-square overflow-hidden rounded-lg border-2 ${i === activePhoto ? "border-primary" : "border-transparent opacity-70"}`}>
                     <img src={p} alt="" className="size-full object-cover" />
                   </button>
