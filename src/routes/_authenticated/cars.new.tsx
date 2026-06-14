@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,15 +86,14 @@ function NewCar() {
 
     setSaving(true);
     try {
-      // Upload photos
-      const photoUrls: string[] = [];
+      // Upload photos — store storage paths (signed URLs are generated on read)
+      const photoPaths: string[] = [];
       for (const file of photos) {
         const ext = file.name.split(".").pop();
         const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file, { cacheControl: "3600", upsert: false });
         if (upErr) throw upErr;
-        const { data } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
-        photoUrls.push(data.publicUrl);
+        photoPaths.push(path);
       }
 
       const { error } = await supabase.from("vehicles").insert({
@@ -109,7 +108,7 @@ function NewCar() {
         km: Number(km) || 0,
         color: color || null,
         description: description || null,
-        photos: photoUrls,
+        photos: photoPaths,
       });
       if (error) throw error;
       toast.success("Veículo cadastrado!");
