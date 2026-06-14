@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { signPhotos } from "@/lib/photo-url";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
@@ -11,7 +11,12 @@ export const Route = createFileRoute("/loja/$slug")({
     const { data: profile } = await supabase.from("profiles").select("*").eq("store_slug", params.slug).maybeSingle();
     if (!profile) throw notFound();
     const { data: vehicles } = await supabase.from("vehicles").select("*").eq("user_id", profile.id).eq("is_active", true).order("created_at", { ascending: false });
-    return { profile, vehicles: vehicles ?? [] };
+    const list = vehicles ?? [];
+    // sign first photo of each vehicle for the grid
+    const firsts = await signPhotos(list.map((v) => v.photos?.[0] ?? "").filter(Boolean));
+    let i = 0;
+    const withSigned = list.map((v) => ({ ...v, _coverUrl: v.photos?.[0] ? firsts[i++] : "" }));
+    return { profile, vehicles: withSigned };
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -61,8 +66,8 @@ function StorePage() {
             {vehicles.map((v: any) => (
               <Link key={v.id} to="/loja/$slug/$vehicleId" params={{ slug: profile.store_slug, vehicleId: v.id }} className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-card-premium">
                 <div className="aspect-video overflow-hidden bg-muted">
-                  {v.photos?.[0] ? (
-                    <img src={v.photos[0]} alt={`${v.brand} ${v.model}`} className="size-full object-cover transition-transform group-hover:scale-105" />
+                  {v._coverUrl ? (
+                    <img src={v._coverUrl} alt={`${v.brand} ${v.model}`} className="size-full object-cover transition-transform group-hover:scale-105" />
                   ) : null}
                 </div>
                 <div className="p-4">

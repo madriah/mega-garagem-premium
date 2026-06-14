@@ -11,7 +11,7 @@ const Input = z.object({
   fipe_value: z.number().min(0).max(10000000).optional().default(0),
   sale_price: z.number().min(0).max(10000000).optional().default(0),
   store_name: z.string().max(120).optional().default(""),
-  notes: z.string().max(500).optional().default(""),
+  notes: z.string().max(5000).optional().default(""),
 });
 
 export const generateDescription = createServerFn({ method: "POST" })

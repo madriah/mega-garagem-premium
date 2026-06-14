@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,8 @@ function AuthPage() {
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-8 shadow-card-premium">
+          <GoogleButton mode={mode} />
+          <Divider />
           {mode === "login" ? <LoginForm /> : <RegisterForm />}
           <div className="mt-6 text-center text-sm text-muted-foreground">
             {mode === "login" ? (
@@ -53,6 +56,43 @@ function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function Divider() {
+  return (
+    <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+      <span className="h-px flex-1 bg-border" />
+      ou com e-mail
+      <span className="h-px flex-1 bg-border" />
+    </div>
+  );
+}
+
+function GoogleButton({ mode }: { mode: "login" | "register" }) {
+  const [loading, setLoading] = useState(false);
+  const onClick = async () => {
+    setLoading(true);
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
+    if (r.error) {
+      setLoading(false);
+      toast.error(r.error.message ?? "Falha ao entrar com Google");
+    }
+    // on success the browser redirects
+  };
+  return (
+    <Button type="button" variant="outline" size="lg" className="w-full" onClick={onClick} disabled={loading}>
+      {loading ? <Loader2 className="size-4 animate-spin" /> : <GoogleIcon />}
+      {mode === "login" ? "Entrar com Google" : "Cadastrar com Google"}
+    </Button>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
+      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.7 4-5.5 4-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.7 3.3 14.6 2.4 12 2.4 6.8 2.4 2.6 6.6 2.6 12s4.2 9.6 9.4 9.6c5.4 0 9-3.8 9-9.2 0-.6-.1-1.1-.2-1.6H12z"/>
+    </svg>
   );
 }
 
@@ -94,11 +134,14 @@ const registerSchema = z.object({
   store_name: z.string().min(2, "Informe o nome da loja"),
   whatsapp: z.string().min(10, "Informe um WhatsApp válido"),
   email: z.string().email("E-mail inválido"),
+  email_confirm: z.string().email("Confirme o e-mail"),
   password: z.string().min(6, "Mínimo 6 caracteres"),
-});
+  password_confirm: z.string().min(6, "Confirme a senha"),
+}).refine((d) => d.email === d.email_confirm, { path: ["email_confirm"], message: "Os e-mails não coincidem" })
+  .refine((d) => d.password === d.password_confirm, { path: ["password_confirm"], message: "As senhas não coincidem" });
 
 function RegisterForm() {
-  const [form, setForm] = useState({ full_name: "", store_name: "", whatsapp: "", email: "", password: "" });
+  const [form, setForm] = useState({ full_name: "", store_name: "", whatsapp: "", email: "", email_confirm: "", password: "", password_confirm: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -143,8 +186,16 @@ function RegisterForm() {
         <Input id="email" type="email" value={form.email} onChange={set("email")} required className="mt-1.5" />
       </div>
       <div>
+        <Label htmlFor="email_confirm">Confirmar e-mail</Label>
+        <Input id="email_confirm" type="email" value={form.email_confirm} onChange={set("email_confirm")} required className="mt-1.5" autoComplete="off" onPaste={(e) => e.preventDefault()} />
+      </div>
+      <div>
         <Label htmlFor="password">Senha</Label>
         <Input id="password" type="password" value={form.password} onChange={set("password")} required className="mt-1.5" minLength={6} />
+      </div>
+      <div>
+        <Label htmlFor="password_confirm">Confirmar senha</Label>
+        <Input id="password_confirm" type="password" value={form.password_confirm} onChange={set("password_confirm")} required className="mt-1.5" minLength={6} autoComplete="off" onPaste={(e) => e.preventDefault()} />
       </div>
       <Button type="submit" className="w-full shadow-glow" size="lg" disabled={loading}>
         {loading && <Loader2 className="size-4 animate-spin" />} Criar minha garagem
