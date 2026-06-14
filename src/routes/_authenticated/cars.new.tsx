@@ -205,7 +205,7 @@ function NewCar() {
                         fipe_value: fipeData.fipe_value,
                         sale_price: Number(salePrice) || 0,
                         store_name: profile?.store_name ?? "",
-                        notes: description,
+                        notes: description.slice(0, 4500),
                       },
                     });
                     setDescription(r.description);
