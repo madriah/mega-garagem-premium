@@ -100,6 +100,9 @@ function VehiclePage() {
             <a href={waUrl} target="_blank" rel="noreferrer" onClick={trackClick}>
               <Button size="lg" className="w-full shadow-glow"><MessageCircle className="size-4" /> Falar no WhatsApp</Button>
             </a>
+            <Link to="/loja/$slug/ficha/$vehicleId" params={{ slug: profile.store_slug, vehicleId: vehicle.id }}>
+              <Button size="lg" variant="outline" className="w-full"><FileText className="size-4" /> Quero financiar</Button>
+            </Link>
 
             <div className="grid grid-cols-2 gap-3">
               {specs.map((s) => (
