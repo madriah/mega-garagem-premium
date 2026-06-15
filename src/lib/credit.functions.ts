@@ -8,7 +8,6 @@ export const submitApplication = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // capture IP + UA for LGPD audit trail
-    const req = getRequest();
     const ip =
       getRequestHeader("cf-connecting-ip") ||
       getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ||
