@@ -14,6 +14,237 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_application_documents: {
+        Row: {
+          application_id: string
+          created_at: string
+          doc_type: string
+          id: string
+          storage_path: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          doc_type: string
+          id?: string
+          storage_path: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          doc_type?: string
+          id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_application_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "credit_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_application_notes: {
+        Row: {
+          application_id: string
+          created_at: string
+          id: string
+          note: string
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          id?: string
+          note: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          id?: string
+          note?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_application_notes_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "credit_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_applications: {
+        Row: {
+          birth_date: string | null
+          cep: string | null
+          city: string | null
+          company_name: string | null
+          company_phone: string | null
+          complement: string | null
+          consent_lgpd: boolean
+          consent_score: boolean
+          consent_signed_at: string | null
+          cpf: string
+          created_at: string
+          desired_installment_value: number | null
+          down_payment: number | null
+          email: string
+          employment_type: string | null
+          external_sync_status: string
+          full_name: string
+          gender: string | null
+          has_trade_in: boolean
+          id: string
+          installments: number | null
+          marital_status: string | null
+          monthly_income: number | null
+          mother_name: string | null
+          nationality: string | null
+          neighborhood: string | null
+          notes_internal: string | null
+          number: string | null
+          occupation: string | null
+          other_income: number | null
+          phone: string
+          protocol: string
+          read_at: string | null
+          references: Json
+          residence_time_months: number | null
+          residence_type: string | null
+          rg: string | null
+          signature_data_url: string | null
+          signature_ip: string | null
+          signature_user_agent: string | null
+          state: string | null
+          status: string
+          store_slug: string
+          street: string | null
+          time_at_job_months: number | null
+          trade_in_description: string | null
+          updated_at: string
+          user_id: string
+          vehicle_id: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          complement?: string | null
+          consent_lgpd?: boolean
+          consent_score?: boolean
+          consent_signed_at?: string | null
+          cpf: string
+          created_at?: string
+          desired_installment_value?: number | null
+          down_payment?: number | null
+          email: string
+          employment_type?: string | null
+          external_sync_status?: string
+          full_name: string
+          gender?: string | null
+          has_trade_in?: boolean
+          id?: string
+          installments?: number | null
+          marital_status?: string | null
+          monthly_income?: number | null
+          mother_name?: string | null
+          nationality?: string | null
+          neighborhood?: string | null
+          notes_internal?: string | null
+          number?: string | null
+          occupation?: string | null
+          other_income?: number | null
+          phone: string
+          protocol?: string
+          read_at?: string | null
+          references?: Json
+          residence_time_months?: number | null
+          residence_type?: string | null
+          rg?: string | null
+          signature_data_url?: string | null
+          signature_ip?: string | null
+          signature_user_agent?: string | null
+          state?: string | null
+          status?: string
+          store_slug: string
+          street?: string | null
+          time_at_job_months?: number | null
+          trade_in_description?: string | null
+          updated_at?: string
+          user_id: string
+          vehicle_id?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          company_name?: string | null
+          company_phone?: string | null
+          complement?: string | null
+          consent_lgpd?: boolean
+          consent_score?: boolean
+          consent_signed_at?: string | null
+          cpf?: string
+          created_at?: string
+          desired_installment_value?: number | null
+          down_payment?: number | null
+          email?: string
+          employment_type?: string | null
+          external_sync_status?: string
+          full_name?: string
+          gender?: string | null
+          has_trade_in?: boolean
+          id?: string
+          installments?: number | null
+          marital_status?: string | null
+          monthly_income?: number | null
+          mother_name?: string | null
+          nationality?: string | null
+          neighborhood?: string | null
+          notes_internal?: string | null
+          number?: string | null
+          occupation?: string | null
+          other_income?: number | null
+          phone?: string
+          protocol?: string
+          read_at?: string | null
+          references?: Json
+          residence_time_months?: number | null
+          residence_type?: string | null
+          rg?: string | null
+          signature_data_url?: string | null
+          signature_ip?: string | null
+          signature_user_agent?: string | null
+          state?: string | null
+          status?: string
+          store_slug?: string
+          street?: string | null
+          time_at_job_months?: number | null
+          trade_in_description?: string | null
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_applications_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
