@@ -5,7 +5,7 @@ import { signPhotos } from "@/lib/photo-url";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
-import { MessageCircle, ArrowLeft, Gauge, Calendar, Palette, Fuel } from "lucide-react";
+import { MessageCircle, ArrowLeft, Gauge, Calendar, Palette, Fuel, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/loja/$slug/$vehicleId")({
   loader: async ({ params }) => {
