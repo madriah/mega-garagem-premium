@@ -1,4 +1,5 @@
-import { createServerFn, getRequest, getRequestHeader } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { ApplicationSchema } from "./credit-schema";
 
 export const submitApplication = createServerFn({ method: "POST" })
