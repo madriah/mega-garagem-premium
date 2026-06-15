@@ -5,7 +5,7 @@ import { signPhotos } from "@/lib/photo-url";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
-import { MessageCircle, ArrowLeft, Gauge, Calendar, Palette, Fuel } from "lucide-react";
+import { MessageCircle, ArrowLeft, Gauge, Calendar, Palette, Fuel, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/loja/$slug/$vehicleId")({
   loader: async ({ params }) => {
@@ -100,6 +100,9 @@ function VehiclePage() {
             <a href={waUrl} target="_blank" rel="noreferrer" onClick={trackClick}>
               <Button size="lg" className="w-full shadow-glow"><MessageCircle className="size-4" /> Falar no WhatsApp</Button>
             </a>
+            <Link to="/loja/$slug/ficha/$vehicleId" params={{ slug: profile.store_slug, vehicleId: vehicle.id }}>
+              <Button size="lg" variant="outline" className="w-full"><FileText className="size-4" /> Quero financiar</Button>
+            </Link>
 
             <div className="grid grid-cols-2 gap-3">
               {specs.map((s) => (

@@ -83,7 +83,10 @@ function StorePage() {
       </main>
 
       <footer className="border-t border-border py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-6 text-center text-xs text-muted-foreground">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-6 text-center text-xs text-muted-foreground">
+          <Link to="/loja/$slug/ficha" params={{ slug: profile.store_slug }} className="rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/20">
+            Solicitar financiamento
+          </Link>
           <span>Catálogo gerado por</span>
           <Link to="/"><Logo size="sm" /></Link>
         </div>
