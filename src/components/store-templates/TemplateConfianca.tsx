@@ -76,7 +76,6 @@ export function TemplateConfianca({ profile, vehicles }: TemplateProps) {
             <p className="tc-empty">Nenhum veículo disponível no momento.</p>
           ) : (
             <div className="tc-grid">
-              {rest.concat(featured ? [] : []).length === 0 && featured ? null : null}
               {(rest.length ? rest : vehicles).map((v) => (
                 <Link key={v.id} to="/loja/$slug/$vehicleId" params={{ slug: profile.store_slug, vehicleId: v.id }} className="tc-card">
                   <div className="tc-card-img">{v._coverUrl && <img src={v._coverUrl} alt={`${v.brand} ${v.model}`} />}</div>
