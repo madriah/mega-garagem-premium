@@ -247,32 +247,47 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accent_color: string | null
+          city: string | null
           created_at: string
           email: string
           full_name: string
           id: string
+          logo_url: string | null
           store_name: string
           store_slug: string
+          store_template: string
+          tagline: string | null
           updated_at: string
           whatsapp: string
         }
         Insert: {
+          accent_color?: string | null
+          city?: string | null
           created_at?: string
           email: string
           full_name: string
           id: string
+          logo_url?: string | null
           store_name: string
           store_slug: string
+          store_template?: string
+          tagline?: string | null
           updated_at?: string
           whatsapp: string
         }
         Update: {
+          accent_color?: string | null
+          city?: string | null
           created_at?: string
           email?: string
           full_name?: string
           id?: string
+          logo_url?: string | null
           store_name?: string
           store_slug?: string
+          store_template?: string
+          tagline?: string | null
           updated_at?: string
           whatsapp?: string
         }
