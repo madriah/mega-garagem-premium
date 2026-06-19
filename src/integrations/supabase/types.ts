@@ -248,6 +248,7 @@ export type Database = {
       profiles: {
         Row: {
           accent_color: string | null
+          art_template: string
           city: string | null
           created_at: string
           email: string
@@ -263,6 +264,7 @@ export type Database = {
         }
         Insert: {
           accent_color?: string | null
+          art_template?: string
           city?: string | null
           created_at?: string
           email: string
@@ -278,6 +280,7 @@ export type Database = {
         }
         Update: {
           accent_color?: string | null
+          art_template?: string
           city?: string | null
           created_at?: string
           email?: string
@@ -292,6 +295,44 @@ export type Database = {
           whatsapp?: string
         }
         Relationships: []
+      }
+      vehicle_arts: {
+        Row: {
+          created_at: string
+          format: string
+          id: string
+          storage_path: string
+          template: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          format: string
+          id?: string
+          storage_path: string
+          template: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          format?: string
+          id?: string
+          storage_path?: string
+          template?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_arts_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vehicle_views: {
         Row: {

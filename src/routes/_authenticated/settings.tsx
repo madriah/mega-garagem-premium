@@ -20,6 +20,7 @@ function Settings() {
     store_slug: "",
     whatsapp: "",
     store_template: "showroom",
+    art_template: "a",
     logo_url: "",
     accent_color: "",
     tagline: "",
@@ -38,6 +39,7 @@ function Settings() {
         store_slug: p.store_slug ?? "",
         whatsapp: p.whatsapp ?? "",
         store_template: p.store_template ?? "showroom",
+        art_template: p.art_template ?? "a",
         logo_url: p.logo_url ?? "",
         accent_color: p.accent_color ?? "",
         tagline: p.tagline ?? "",
@@ -74,6 +76,7 @@ function Settings() {
       store_slug: slug,
       whatsapp,
       store_template: form.store_template,
+      art_template: form.art_template,
       logo_url: form.logo_url || null,
       accent_color: form.accent_color || null,
       tagline: form.tagline || null,
@@ -195,6 +198,29 @@ function Settings() {
             })}
           </div>
         </section>
+
+        <section className="rounded-xl border border-border bg-card p-6 space-y-4">
+          <h2 className="text-xl">TEMPLATE DE ARTE (REDES SOCIAIS)</h2>
+          <p className="text-sm text-muted-foreground">Modelo usado quando você clicar em "Gerar arte" em cada veículo. Feed 1:1 + Story 9:16.</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              { id: "a", label: "Cinematic Dark", description: "Fundo escuro, foto cinematográfica, preço gigante em destaque." },
+              { id: "b", label: "Clean Premium", description: "Fundo claro, tipografia sóbria, vibe concessionária premium." },
+              { id: "c", label: "Bold Split", description: "Barra de header colorida, oferta relâmpago, alta atenção." },
+            ].map((t) => {
+              const selected = form.art_template === t.id;
+              return (
+                <button key={t.id} type="button" onClick={() => setForm({ ...form, art_template: t.id })}
+                  className={`rounded-xl border-2 p-4 text-left transition-colors ${selected ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/40"}`}>
+                  <div className="font-display text-lg">PADRÃO {t.id.toUpperCase()}</div>
+                  <div className="text-sm font-medium">{t.label}</div>
+                  <p className="mt-1 text-xs text-muted-foreground">{t.description}</p>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
 
         <section className="rounded-xl border border-border bg-card p-6">
           <h2 className="mb-2 text-xl">E-MAIL</h2>
