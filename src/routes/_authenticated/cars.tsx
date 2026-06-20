@@ -8,6 +8,7 @@ import { PlusCircle, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { ArtGenerator } from "@/components/ArtGenerator";
 import { PhotoImg } from "@/components/PhotoImg";
+import { SendFichaButton } from "@/components/SendFichaButton";
 
 export const Route = createFileRoute("/_authenticated/cars")({ component: CarsLayout });
 
