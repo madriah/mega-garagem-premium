@@ -120,6 +120,16 @@ function Detail() {
           <Badge variant="outline" className={STATUS_COLORS[app.status]}>{STATUS_LABELS[app.status]}</Badge>
           <Button variant="outline" size="sm" onClick={downloadPdf}><Download className="size-4" /> PDF</Button>
           <a href={waUrl} target="_blank" rel="noreferrer"><Button size="sm"><MessageCircle className="size-4" /> WhatsApp</Button></a>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm"><FileQuestion className="size-4" /> Solicitar documento</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {DOC_REQUESTS.map((d) => (
+                <DropdownMenuItem key={d} onClick={() => requestDoc(d)}>{d}</DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="ghost" size="sm" onClick={remove}><Trash2 className="size-4" /></Button>
         </div>
       </header>
