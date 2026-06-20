@@ -8,6 +8,7 @@ import { PlusCircle, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { ArtGenerator } from "@/components/ArtGenerator";
 import { PhotoImg } from "@/components/PhotoImg";
+import { SendFichaButton } from "@/components/SendFichaButton";
 
 export const Route = createFileRoute("/_authenticated/cars")({ component: CarsLayout });
 
@@ -96,13 +97,21 @@ function CarsList() {
                         <Button variant="outline" size="sm" className="w-full"><Eye className="size-3.5" /> Ver</Button>
                       </Link>
                       {v.is_active !== false && (
-                        <ArtGenerator
-                          vehicleId={v.id}
-                          userId={user!.id}
-                          template={template}
-                          vehicle={{ brand: v.brand, model: v.model, year: String(v.year ?? ""), fuel: v.fuel, km: v.km, color: v.color, sale_price: Number(v.sale_price), fipe_value: v.fipe_value ? Number(v.fipe_value) : null, photos: v.photos ?? [] }}
-                          branding={{ storeName: profile.store_name, whatsapp: profile.whatsapp, city: (profile as any).city, accentColor: (profile as any).accent_color, logoUrl: (profile as any).logo_url }}
-                        />
+                        <>
+                          <ArtGenerator
+                            vehicleId={v.id}
+                            userId={user!.id}
+                            template={template}
+                            vehicle={{ brand: v.brand, model: v.model, year: String(v.year ?? ""), fuel: v.fuel, km: v.km, color: v.color, sale_price: Number(v.sale_price), fipe_value: v.fipe_value ? Number(v.fipe_value) : null, photos: v.photos ?? [] }}
+                            branding={{ storeName: profile.store_name, whatsapp: profile.whatsapp, city: (profile as any).city, accentColor: (profile as any).accent_color, logoUrl: (profile as any).logo_url }}
+                          />
+                          <SendFichaButton
+                            userId={user!.id}
+                            storeSlug={profile.store_slug}
+                            vehicleId={v.id}
+                            vehicleLabel={`${v.brand ?? ""} ${v.model ?? ""} ${v.year ?? ""}`.trim()}
+                          />
+                        </>
                       )}
                     </>
                   )}

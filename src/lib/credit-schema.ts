@@ -23,6 +23,8 @@ export const maskPhone = (v: string) => {
   return d.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3").trim().replace(/-$/, "");
 };
 export const maskCEP = (v: string) => v.replace(/\D/g, "").slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
+export const maskDate = (v: string) =>
+  v.replace(/\D/g, "").slice(0, 8).replace(/(\d{2})(\d)/, "$1/$2").replace(/(\d{2})(\d)/, "$1/$2");
 export const maskMoney = (v: string) => {
   const d = v.replace(/\D/g, "");
   if (!d) return "";
@@ -32,29 +34,26 @@ export const parseMoney = (v: string): number => {
   const d = v.replace(/\D/g, "");
   return d ? parseInt(d) / 100 : 0;
 };
-
-export const ReferenceSchema = z.object({
-  name: z.string().trim().min(1, "Nome obrigatório").max(120),
-  phone: z.string().trim().min(10, "Telefone inválido").max(20),
-  relationship: z.string().trim().min(1, "Vínculo obrigatório").max(40),
-});
+// dd/mm/aaaa -> yyyy-mm-dd
+export const brDateToISO = (v: string): string | null => {
+  const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+};
 
 export const ApplicationSchema = z.object({
   user_id: z.string().uuid(),
   vehicle_id: z.string().uuid().nullable().optional(),
   store_slug: z.string().min(1).max(120),
+  seller_id: z.string().uuid().nullable().optional(),
   // pessoal
   full_name: z.string().trim().min(3, "Nome muito curto").max(160),
   cpf: z.string().refine(isValidCPF, "CPF inválido"),
-  rg: z.string().max(30).optional().default(""),
   birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
   mother_name: z.string().trim().min(3).max(160),
-  gender: z.enum(["M", "F", "Outro"]).optional(),
-  marital_status: z.enum(["solteiro", "casado", "divorciado", "viuvo", "uniao_estavel"]),
-  nationality: z.string().max(60).optional().default("Brasileira"),
-  email: z.string().trim().email("E-mail inválido").max(160),
-  phone: z.string().trim().min(10).max(20),
-  whatsapp: z.string().max(20).optional().default(""),
+  marital_status: z.string().max(40).optional().default(""),
+  email: z.string().trim().email("E-mail inválido").max(160).or(z.literal("")).optional().default(""),
+  phone: z.string().trim().min(10, "Telefone inválido").max(20),
   // endereço
   cep: z.string().regex(/^\d{5}-?\d{3}$/, "CEP inválido"),
   street: z.string().trim().min(1).max(160),
@@ -63,27 +62,19 @@ export const ApplicationSchema = z.object({
   neighborhood: z.string().trim().min(1).max(80),
   city: z.string().trim().min(1).max(80),
   state: z.string().length(2),
-  residence_type: z.enum(["propria", "alugada", "financiada", "familiar", "outro"]),
-  residence_time_months: z.number().int().min(0).max(1200),
+  residence_type: z.string().max(40).optional().default(""),
   // profissional
-  occupation: z.string().trim().min(1).max(120),
+  occupation: z.string().max(120).optional().default(""),
   company_name: z.string().max(160).optional().default(""),
-  company_phone: z.string().max(20).optional().default(""),
-  employment_type: z.enum(["clt", "autonomo", "empresario", "servidor", "aposentado", "outro"]),
+  employment_type: z.string().max(40).optional().default(""),
   monthly_income: z.number().min(0).max(10000000),
   other_income: z.number().min(0).max(10000000).optional().default(0),
-  time_at_job_months: z.number().int().min(0).max(1200),
-  // referências + proposta
-  references: z.array(ReferenceSchema).min(2, "Mínimo 2 referências").max(3),
-  down_payment: z.number().min(0).max(10000000),
-  installments: z.number().int().min(6).max(72),
-  desired_installment_value: z.number().min(0).max(1000000),
-  has_trade_in: z.boolean().default(false),
-  trade_in_description: z.string().max(500).optional().default(""),
-  // LGPD
-  consent_lgpd: z.literal(true, { errorMap: () => ({ message: "Você precisa aceitar os termos LGPD" }) }),
-  consent_score: z.boolean().default(false),
-  signature_data_url: z.string().min(100, "Assine para continuar").max(200000),
+  time_at_job_months: z.number().int().min(0).max(1200).optional().default(0),
+  down_payment: z.number().min(0).max(10000000).optional().default(0),
+  installments: z.number().int().min(6).max(96).optional().default(48),
+  // bancos
+  selected_banks: z.array(z.string().max(40)).max(20).default([]),
+  vendor_notes: z.string().max(2000).optional().default(""),
 });
 
 export type ApplicationInput = z.infer<typeof ApplicationSchema>;

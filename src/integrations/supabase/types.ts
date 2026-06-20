@@ -117,6 +117,8 @@ export type Database = {
           residence_time_months: number | null
           residence_type: string | null
           rg: string | null
+          selected_banks: string[]
+          seller_id: string | null
           signature_data_url: string | null
           signature_ip: string | null
           signature_user_agent: string | null
@@ -129,6 +131,7 @@ export type Database = {
           updated_at: string
           user_id: string
           vehicle_id: string | null
+          vendor_notes: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -169,6 +172,8 @@ export type Database = {
           residence_time_months?: number | null
           residence_type?: string | null
           rg?: string | null
+          selected_banks?: string[]
+          seller_id?: string | null
           signature_data_url?: string | null
           signature_ip?: string | null
           signature_user_agent?: string | null
@@ -181,6 +186,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           vehicle_id?: string | null
+          vendor_notes?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -221,6 +227,8 @@ export type Database = {
           residence_time_months?: number | null
           residence_type?: string | null
           rg?: string | null
+          selected_banks?: string[]
+          seller_id?: string | null
           signature_data_url?: string | null
           signature_ip?: string | null
           signature_user_agent?: string | null
@@ -233,9 +241,17 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vehicle_id?: string | null
+          vendor_notes?: string | null
           whatsapp?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "credit_applications_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "credit_applications_vehicle_id_fkey"
             columns: ["vehicle_id"]
@@ -292,6 +308,39 @@ export type Database = {
           store_template?: string
           tagline?: string | null
           updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      sellers: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string
+          whatsapp: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+          whatsapp: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
           whatsapp?: string
         }
         Relationships: []
