@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { Car, PlusCircle, BarChart3, Settings, LogOut, Store, Loader2, FileText } from "lucide-react";
+import { Car, PlusCircle, BarChart3, Settings, LogOut, Store, Loader2, FileText, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthedLayout });
