@@ -7,7 +7,6 @@ export const submitApplication = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // capture IP + UA for LGPD audit trail
     const ip =
       getRequestHeader("cf-connecting-ip") ||
       getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -15,7 +14,6 @@ export const submitApplication = createServerFn({ method: "POST" })
       "unknown";
     const ua = getRequestHeader("user-agent") || "unknown";
 
-    // validate the user/store exists
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("id, store_slug")
@@ -24,7 +22,6 @@ export const submitApplication = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!profile) throw new Error("Loja inválida");
 
-    // validate vehicle, if linked
     if (data.vehicle_id) {
       const { data: v } = await supabaseAdmin
         .from("vehicles")
@@ -43,15 +40,11 @@ export const submitApplication = createServerFn({ method: "POST" })
         store_slug: data.store_slug,
         full_name: data.full_name,
         cpf: data.cpf,
-        rg: data.rg || null,
         birth_date: data.birth_date,
         mother_name: data.mother_name,
-        gender: data.gender ?? null,
-        marital_status: data.marital_status,
-        nationality: data.nationality,
-        email: data.email,
+        marital_status: data.marital_status || null,
+        email: data.email || `${data.cpf.replace(/\D/g, "")}@sem-email.local`,
         phone: data.phone,
-        whatsapp: data.whatsapp || null,
         cep: data.cep,
         street: data.street,
         number: data.number,
@@ -59,27 +52,24 @@ export const submitApplication = createServerFn({ method: "POST" })
         neighborhood: data.neighborhood,
         city: data.city,
         state: data.state,
-        residence_type: data.residence_type,
-        residence_time_months: data.residence_time_months,
-        occupation: data.occupation,
+        residence_type: data.residence_type || null,
+        occupation: data.occupation || null,
         company_name: data.company_name || null,
-        company_phone: data.company_phone || null,
-        employment_type: data.employment_type,
+        employment_type: data.employment_type || null,
         monthly_income: data.monthly_income,
         other_income: data.other_income,
         time_at_job_months: data.time_at_job_months,
-        references: data.references,
         down_payment: data.down_payment,
         installments: data.installments,
-        desired_installment_value: data.desired_installment_value,
-        has_trade_in: data.has_trade_in,
-        trade_in_description: data.trade_in_description || null,
-        consent_lgpd: data.consent_lgpd,
-        consent_score: data.consent_score,
+        consent_lgpd: true,
         consent_signed_at: new Date().toISOString(),
-        signature_data_url: data.signature_data_url,
         signature_ip: ip,
         signature_user_agent: ua,
+        ...({
+          seller_id: data.seller_id ?? null,
+          selected_banks: data.selected_banks,
+          vendor_notes: data.vendor_notes || null,
+        } as any),
       })
       .select("id, protocol")
       .single();
