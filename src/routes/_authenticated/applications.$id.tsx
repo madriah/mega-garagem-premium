@@ -93,6 +93,15 @@ function Detail() {
 
   const waUrl = `https://wa.me/55${(app.whatsapp || app.phone).replace(/\D/g, "")}?text=${encodeURIComponent(`Olá ${app.full_name.split(" ")[0]}! Sobre sua solicitação de financiamento (protocolo #${app.protocol})...`)}`;
 
+  const vehicleLabel = app.vehicles ? `${app.vehicles.brand ?? ""} ${app.vehicles.model ?? ""} ${app.vehicles.year ?? ""}`.trim() : "veículo";
+  const requestDoc = (docName: string) => {
+    const firstName = app.full_name.split(" ")[0];
+    const phone = (app.whatsapp || app.phone).replace(/\D/g, "");
+    const msg = `Olá ${firstName}, precisamos do seu ${docName} para finalizar sua proposta do ${vehicleLabel}. Pode enviar aqui? 🙏`;
+    window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+  };
+  const DOC_REQUESTS = ["RG (frente e verso)", "CPF", "comprovante de renda", "comprovante de residência", "CNH"];
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <Link to="/applications" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" /> Voltar para fichas</Link>
