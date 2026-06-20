@@ -16,6 +16,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCarsRouteImport } from './routes/_authenticated/cars'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
@@ -58,6 +59,11 @@ const LojaSlugRoute = LojaSlugRouteImport.update({
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSellersRoute = AuthenticatedSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/applications': typeof AuthenticatedApplicationsRouteWithChildren
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/loja/$slug': typeof LojaSlugRouteWithChildren
   '/applications/$id': typeof AuthenticatedApplicationsIdRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/applications': typeof AuthenticatedApplicationsRouteWithChildren
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/loja/$slug': typeof LojaSlugRouteWithChildren
   '/applications/$id': typeof AuthenticatedApplicationsIdRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/_authenticated/applications': typeof AuthenticatedApplicationsRouteWithChildren
   '/_authenticated/cars': typeof AuthenticatedCarsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/loja/$slug': typeof LojaSlugRouteWithChildren
   '/_authenticated/applications/$id': typeof AuthenticatedApplicationsIdRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/applications'
     | '/cars'
     | '/dashboard'
+    | '/sellers'
     | '/settings'
     | '/loja/$slug'
     | '/applications/$id'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/applications'
     | '/cars'
     | '/dashboard'
+    | '/sellers'
     | '/settings'
     | '/loja/$slug'
     | '/applications/$id'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/_authenticated/applications'
     | '/_authenticated/cars'
     | '/_authenticated/dashboard'
+    | '/_authenticated/sellers'
     | '/_authenticated/settings'
     | '/loja/$slug'
     | '/_authenticated/applications/$id'
@@ -274,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/sellers': {
+      id: '/_authenticated/sellers'
+      path: '/sellers'
+      fullPath: '/sellers'
+      preLoaderRoute: typeof AuthenticatedSellersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
@@ -371,6 +390,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRouteWithChildren
   AuthenticatedCarsRoute: typeof AuthenticatedCarsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
@@ -378,6 +398,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedApplicationsRoute: AuthenticatedApplicationsRouteWithChildren,
   AuthenticatedCarsRoute: AuthenticatedCarsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
