@@ -1,80 +1,115 @@
-import { useEffect, useRef, useState } from "react";
-import SignatureCanvas from "react-signature-canvas";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Upload, Loader2, Plus, Trash2, CheckCircle2, ShieldCheck } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { submitApplication } from "@/lib/credit.functions";
 import {
   ApplicationSchema,
+  brDateToISO,
   maskCEP,
   maskCPF,
+  maskDate,
   maskMoney,
   maskPhone,
   parseMoney,
 } from "@/lib/credit-schema";
 
-type Props = {
-  profile: { id: string; store_slug: string; store_name: string };
-  vehicle?: { id: string; brand: string | null; model: string | null; year: string | null; sale_price: number } | null;
+type Profile = {
+  id: string;
+  store_name: string;
+  store_slug: string;
+  whatsapp: string | null;
+  logo_url: string | null;
+  accent_color: string | null;
+  city: string | null;
 };
+type Vehicle = {
+  id: string;
+  brand: string | null;
+  model: string | null;
+  year: string | null;
+  km: number | null;
+  fuel: string | null;
+  sale_price: number | string;
+  fipe_value: number | string | null;
+  _cover?: string;
+};
+type Seller = { id: string; name: string; whatsapp: string } | null;
 
-const STEPS = ["Pessoal", "Endereço", "Profissional", "Proposta", "Assinatura"] as const;
+type Props = { profile: Profile; vehicle: Vehicle; seller: Seller };
+
+const BANKS = [
+  { id: "santander", name: "Santander", icon: "🔴", tint: "rgba(255,0,0,0.1)" },
+  { id: "bv", name: "BV", icon: "🔵", tint: "rgba(0,100,255,0.1)" },
+  { id: "itau", name: "Itaú", icon: "🟠", tint: "rgba(255,165,0,0.1)" },
+  { id: "c6", name: "C6 Bank", icon: "🟢", tint: "rgba(0,200,100,0.1)" },
+  { id: "bradesco", name: "Bradesco", icon: "❤️", tint: "rgba(200,0,0,0.1)" },
+  { id: "pan", name: "Banco Pan", icon: "💜", tint: "rgba(100,0,200,0.1)" },
+];
+
+const STEP_LABELS = [
+  "Dados Pessoais",
+  "Endereço",
+  "Renda",
+  "Documentos",
+  "Enviar para bancos",
+] as const;
+
+const DOC_TYPES = [
+  { k: "rg_frente", label: "RG — Frente", desc: "Documento de identidade", icon: "🪪" },
+  { k: "rg_verso", label: "RG — Verso", desc: "Verso do documento", icon: "🪪" },
+  { k: "cpf", label: "CPF", desc: "Cadastro de pessoa física", icon: "📄" },
+  { k: "comprovante_renda", label: "Comprovante de Renda", desc: "Holerite ou extrato", icon: "💰" },
+  { k: "comprovante_endereco", label: "Comprovante de Residência", desc: "Conta de luz, água ou gás", icon: "🏠" },
+  { k: "cnh", label: "CNH (opcional)", desc: "Carteira de motorista", icon: "🚗" },
+] as const;
 
 const empty = {
-  full_name: "", cpf: "", rg: "", birth_date: "", mother_name: "",
-  gender: undefined as "M" | "F" | "Outro" | undefined,
-  marital_status: "" as any, nationality: "Brasileira",
-  email: "", phone: "", whatsapp: "",
-  cep: "", street: "", number: "", complement: "", neighborhood: "", city: "", state: "",
-  residence_type: "" as any, residence_time_months: 0,
-  occupation: "", company_name: "", company_phone: "",
-  employment_type: "" as any,
-  monthly_income: 0, other_income: 0, time_at_job_months: 0,
-  references: [
-    { name: "", phone: "", relationship: "" },
-    { name: "", phone: "", relationship: "" },
-  ],
-  down_payment: 0, installments: 48, desired_installment_value: 0,
-  has_trade_in: false, trade_in_description: "",
-  consent_lgpd: false, consent_score: false,
+  full_name: "", cpf: "", birth_date_br: "", mother_name: "",
+  marital_status: "", escolaridade: "",
+  whatsapp: "", email: "",
+  cep: "", number: "", street: "", neighborhood: "", complement: "",
+  city: "", state: "SP",
+  residence_type: "", residence_time: "",
+  employment_type: "", company_name: "", occupation: "",
+  monthly_income: 0, other_income: 0, time_at_job: "",
+  down_payment: 0, installments: 48,
+  vendor_notes: "",
 };
 
-export function CreditWizard({ profile, vehicle }: Props) {
+export function CreditWizard({ profile, vehicle, seller }: Props) {
   const navigate = useNavigate();
   const submit = useServerFn(submitApplication);
-  const sigRef = useRef<SignatureCanvas | null>(null);
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState<typeof empty>(() => {
-    if (typeof window === "undefined") return empty;
-    try {
-      const saved = localStorage.getItem(`ficha-${profile.store_slug}-${vehicle?.id ?? "any"}`);
-      return saved ? { ...empty, ...JSON.parse(saved) } : empty;
-    } catch { return empty; }
-  });
-  const [docs, setDocs] = useState<Record<string, File | null>>({ cnh: null, comprovante_renda: null, comprovante_endereco: null });
   const [submitting, setSubmitting] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
+  const [form, setForm] = useState(empty);
+  const [docs, setDocs] = useState<Record<string, File | null>>({});
+  const [selectedBanks, setSelectedBanks] = useState<string[]>(["santander", "bv"]);
+  const [pending, setPending] = useState(false);
+  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  // persist draft
+  // Apply store accent color as --orange
   useEffect(() => {
-    const t = setTimeout(() => {
-      try { localStorage.setItem(`ficha-${profile.store_slug}-${vehicle?.id ?? "any"}`, JSON.stringify(form)); } catch {}
-    }, 400);
-    return () => clearTimeout(t);
-  }, [form, profile.store_slug, vehicle?.id]);
+    const color = profile.accent_color || "#E8610A";
+    document.documentElement.style.setProperty("--ficha-orange", color);
+    return () => { document.documentElement.style.removeProperty("--ficha-orange"); };
+  }, [profile.accent_color]);
 
-  const set = <K extends keyof typeof empty>(k: K, v: (typeof empty)[K]) => setForm((f) => ({ ...f, [k]: v }));
+  const set = <K extends keyof typeof empty>(k: K, v: (typeof empty)[K]) =>
+    setForm((f) => ({ ...f, [k]: v }));
 
-  // CEP lookup
+  const initials = useMemo(() => {
+    const words = (profile.store_name || "L").trim().split(/\s+/);
+    return (words[0]?.[0] ?? "") + (words[1]?.[0] ?? "");
+  }, [profile.store_name]);
+
+  const priceBRL = (v: number | string | null | undefined) => {
+    const n = Number(v ?? 0);
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+  };
+
   const onCepBlur = async () => {
     const c = form.cep.replace(/\D/g, "");
     if (c.length !== 8) return;
@@ -83,7 +118,13 @@ export function CreditWizard({ profile, vehicle }: Props) {
       const r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
       const j = await r.json();
       if (!j.erro) {
-        setForm((f) => ({ ...f, street: j.logradouro || f.street, neighborhood: j.bairro || f.neighborhood, city: j.localidade || f.city, state: j.uf || f.state }));
+        setForm((f) => ({
+          ...f,
+          street: j.logradouro || f.street,
+          neighborhood: j.bairro || f.neighborhood,
+          city: j.localidade || f.city,
+          state: j.uf || f.state,
+        }));
       }
     } catch {} finally { setCepLoading(false); }
   };
@@ -91,66 +132,80 @@ export function CreditWizard({ profile, vehicle }: Props) {
   const validateStep = (): string | null => {
     if (step === 0) {
       if (form.full_name.trim().length < 3) return "Informe seu nome completo";
-      if (form.cpf.replace(/\D/g, "").length !== 11) return "CPF incompleto";
-      if (!form.birth_date) return "Informe a data de nascimento";
+      if (form.cpf.replace(/\D/g, "").length !== 11) return "CPF inválido";
+      if (!brDateToISO(form.birth_date_br)) return "Data de nascimento inválida";
       if (form.mother_name.trim().length < 3) return "Informe o nome da mãe";
       if (!form.marital_status) return "Selecione o estado civil";
-      if (!form.email.includes("@")) return "E-mail inválido";
-      if (form.phone.replace(/\D/g, "").length < 10) return "Telefone inválido";
+      if (form.whatsapp.replace(/\D/g, "").length < 10) return "WhatsApp inválido";
     }
     if (step === 1) {
       if (form.cep.replace(/\D/g, "").length !== 8) return "CEP inválido";
-      if (!form.street.trim() || !form.number.trim() || !form.neighborhood.trim() || !form.city.trim() || form.state.length !== 2) return "Endereço incompleto";
-      if (!form.residence_type) return "Selecione o tipo de residência";
+      if (!form.street.trim() || !form.number.trim() || !form.neighborhood.trim()) return "Endereço incompleto";
+      if (!form.city.trim() || form.state.length !== 2) return "Informe cidade/UF";
     }
     if (step === 2) {
-      if (!form.occupation.trim()) return "Informe sua profissão";
-      if (!form.employment_type) return "Selecione o tipo de vínculo";
+      if (!form.employment_type) return "Selecione a situação profissional";
       if (form.monthly_income <= 0) return "Informe a renda mensal";
     }
-    if (step === 3) {
-      if (form.down_payment < 0) return "Entrada inválida";
-      if (form.installments < 6) return "Mínimo 6 parcelas";
-      const refs = form.references.filter((r) => r.name.trim() && r.phone.replace(/\D/g, "").length >= 10);
-      if (refs.length < 2) return "Preencha pelo menos 2 referências completas";
-    }
+    if (step === 4 && selectedBanks.length === 0) return "Selecione ao menos um banco";
     return null;
   };
 
-  const next = () => {
+  const goNext = () => {
     const err = validateStep();
     if (err) { toast.error(err); return; }
-    setStep((s) => Math.min(s + 1, STEPS.length - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (step < STEP_LABELS.length - 1) {
+      setStep((s) => s + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      handleSubmit();
+    }
   };
-  const prev = () => { setStep((s) => Math.max(s - 1, 0)); window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  const goPrev = () => { setStep((s) => Math.max(0, s - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const handleSubmit = async () => {
-    if (!form.consent_lgpd) { toast.error("Aceite os termos LGPD"); return; }
-    if (!sigRef.current || sigRef.current.isEmpty()) { toast.error("Assine no quadro abaixo"); return; }
-
-    const signature_data_url = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
-
+    const iso = brDateToISO(form.birth_date_br);
+    if (!iso) { toast.error("Data inválida"); return; }
     const payload = {
-      ...form,
       user_id: profile.id,
-      vehicle_id: vehicle?.id ?? null,
+      vehicle_id: vehicle.id,
       store_slug: profile.store_slug,
-      signature_data_url,
-      references: form.references.filter((r) => r.name.trim() && r.phone.replace(/\D/g, "").length >= 10),
+      seller_id: seller?.id ?? null,
+      full_name: form.full_name,
+      cpf: form.cpf,
+      birth_date: iso,
+      mother_name: form.mother_name,
+      marital_status: form.marital_status,
+      email: form.email,
+      phone: form.whatsapp,
+      cep: form.cep,
+      street: form.street,
+      number: form.number,
+      complement: form.complement,
+      neighborhood: form.neighborhood,
+      city: form.city,
+      state: form.state.toUpperCase(),
+      residence_type: form.residence_type,
+      occupation: form.occupation,
+      company_name: form.company_name,
+      employment_type: form.employment_type,
+      monthly_income: form.monthly_income,
+      other_income: form.other_income,
+      time_at_job_months: 0,
+      down_payment: form.down_payment,
+      installments: form.installments,
+      selected_banks: selectedBanks,
+      vendor_notes: form.vendor_notes,
     };
-
     const parsed = ApplicationSchema.safeParse(payload);
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
-      return;
-    }
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos"); return; }
 
     setSubmitting(true);
+    setPending(true);
     try {
       const result = await submit({ data: parsed.data });
 
-      // upload docs (best effort)
       for (const [type, file] of Object.entries(docs)) {
         if (!file) continue;
         const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
@@ -161,269 +216,496 @@ export function CreditWizard({ profile, vehicle }: Props) {
         }
       }
 
-      try { localStorage.removeItem(`ficha-${profile.store_slug}-${vehicle?.id ?? "any"}`); } catch {}
-      navigate({ to: "/loja/$slug/ficha-enviada", params: { slug: profile.store_slug }, search: { p: result.protocol } });
+      // Notify seller via WhatsApp (open on client device)
+      const notifyPhone = (seller?.whatsapp || profile.whatsapp || "").replace(/\D/g, "");
+      if (notifyPhone) {
+        const msg = `🚗 Nova ficha de financiamento recebida!\n\nCliente: ${form.full_name}\nVeículo: ${vehicle.brand ?? ""} ${vehicle.model ?? ""} ${vehicle.year ?? ""}\n\n📋 Protocolo: #${result.protocol}`;
+        const url = `https://wa.me/55${notifyPhone}?text=${encodeURIComponent(msg)}`;
+        // open in new tab — non-blocking
+        try { window.open(url, "_blank", "noopener"); } catch {}
+      }
+
+      setTimeout(() => {
+        navigate({ to: "/loja/$slug/ficha-enviada", params: { slug: profile.store_slug }, search: { p: result.protocol } });
+      }, 1500);
     } catch (e: any) {
+      setPending(false);
       toast.error(e?.message || "Falha ao enviar ficha");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const uploadField = (k: string, file: File | null) => setDocs((d) => ({ ...d, [k]: file }));
+
+  const pct = Math.round(((step + (pending ? 1 : 0)) / STEP_LABELS.length) * 100);
+
   return (
-    <div className="mx-auto max-w-2xl">
-      {/* progress */}
-      <div className="mb-6">
-        <div className="mb-2 flex items-center justify-between text-xs">
-          <span className="font-medium uppercase tracking-wider text-muted-foreground">Etapa {step + 1} de {STEPS.length}</span>
-          <span className="text-muted-foreground">{STEPS[step]}</span>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+
+      <div className="ficha-root">
+        {/* HEADER LOJISTA */}
+        <div className="dealer-header">
+          <div className="dealer-logo">
+            {profile.logo_url ? (
+              <img src={profile.logo_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 10 }} />
+            ) : initials.toUpperCase()}
+          </div>
+          <div className="dealer-info">
+            <div className="dealer-name">{profile.store_name}</div>
+            <div className="dealer-sub">Proposta de financiamento</div>
+          </div>
+          <div className="secure-badge">🔒 Seguro</div>
         </div>
-        <Progress value={((step + 1) / STEPS.length) * 100} />
-      </div>
 
-      {step === 0 && (
-        <Section title="Dados pessoais" subtitle="Suas informações básicas para o cadastro.">
-          <Field label="Nome completo"><Input value={form.full_name} onChange={(e) => set("full_name", e.target.value)} placeholder="Como aparece no RG/CNH" /></Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="CPF"><Input value={form.cpf} onChange={(e) => set("cpf", maskCPF(e.target.value))} placeholder="000.000.000-00" inputMode="numeric" /></Field>
-            <Field label="RG (opcional)"><Input value={form.rg} onChange={(e) => set("rg", e.target.value)} /></Field>
+        {/* CAR CARD */}
+        <div className="car-card">
+          <div className="car-image">
+            {vehicle._cover ? (
+              <img src={vehicle._cover} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              <span style={{ fontSize: 64 }}>🚗</span>
+            )}
+            <div className="car-badge">DISPONÍVEL</div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Data de nascimento"><Input type="date" value={form.birth_date} onChange={(e) => set("birth_date", e.target.value)} /></Field>
-            <Field label="Sexo">
-              <Select value={form.gender ?? ""} onValueChange={(v) => set("gender", v as any)}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent><SelectItem value="M">Masculino</SelectItem><SelectItem value="F">Feminino</SelectItem><SelectItem value="Outro">Outro</SelectItem></SelectContent>
-              </Select>
-            </Field>
-          </div>
-          <Field label="Nome completo da mãe"><Input value={form.mother_name} onChange={(e) => set("mother_name", e.target.value)} /></Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Estado civil">
-              <Select value={form.marital_status} onValueChange={(v) => set("marital_status", v as any)}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="solteiro">Solteiro(a)</SelectItem>
-                  <SelectItem value="casado">Casado(a)</SelectItem>
-                  <SelectItem value="uniao_estavel">União estável</SelectItem>
-                  <SelectItem value="divorciado">Divorciado(a)</SelectItem>
-                  <SelectItem value="viuvo">Viúvo(a)</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Nacionalidade"><Input value={form.nationality} onChange={(e) => set("nationality", e.target.value)} /></Field>
-          </div>
-          <Field label="E-mail"><Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="voce@email.com" /></Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Telefone"><Input value={form.phone} onChange={(e) => set("phone", maskPhone(e.target.value))} inputMode="tel" placeholder="(00) 00000-0000" /></Field>
-            <Field label="WhatsApp (se diferente)"><Input value={form.whatsapp} onChange={(e) => set("whatsapp", maskPhone(e.target.value))} inputMode="tel" /></Field>
-          </div>
-        </Section>
-      )}
-
-      {step === 1 && (
-        <Section title="Endereço" subtitle="Onde você mora atualmente.">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="CEP">
-              <div className="relative">
-                <Input value={form.cep} onChange={(e) => set("cep", maskCEP(e.target.value))} onBlur={onCepBlur} inputMode="numeric" placeholder="00000-000" />
-                {cepLoading && <Loader2 className="absolute right-2 top-1/2 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />}
+          <div className="car-info">
+            <div>
+              <div className="car-name">{vehicle.brand} {vehicle.model}</div>
+              <div className="car-details">
+                {vehicle.year} · {(vehicle.km ?? 0).toLocaleString("pt-BR")} km
+                {vehicle.fuel ? ` · ${vehicle.fuel}` : ""}
               </div>
-            </Field>
-            <Field label="Estado"><Input value={form.state} onChange={(e) => set("state", e.target.value.toUpperCase().slice(0, 2))} placeholder="UF" /></Field>
-            <Field label="Cidade"><Input value={form.city} onChange={(e) => set("city", e.target.value)} /></Field>
-          </div>
-          <Field label="Logradouro"><Input value={form.street} onChange={(e) => set("street", e.target.value)} /></Field>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Número"><Input value={form.number} onChange={(e) => set("number", e.target.value)} /></Field>
-            <Field label="Complemento"><Input value={form.complement} onChange={(e) => set("complement", e.target.value)} /></Field>
-            <Field label="Bairro"><Input value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} /></Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Tipo de residência">
-              <Select value={form.residence_type} onValueChange={(v) => set("residence_type", v as any)}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="propria">Própria</SelectItem>
-                  <SelectItem value="alugada">Alugada</SelectItem>
-                  <SelectItem value="financiada">Financiada</SelectItem>
-                  <SelectItem value="familiar">Familiar</SelectItem>
-                  <SelectItem value="outro">Outro</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Tempo de residência (meses)"><Input type="number" min={0} value={form.residence_time_months || ""} onChange={(e) => set("residence_time_months", parseInt(e.target.value) || 0)} /></Field>
-          </div>
-        </Section>
-      )}
-
-      {step === 2 && (
-        <Section title="Profissão e renda" subtitle="Informações profissionais para análise.">
-          <Field label="Profissão"><Input value={form.occupation} onChange={(e) => set("occupation", e.target.value)} /></Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Empresa onde trabalha"><Input value={form.company_name} onChange={(e) => set("company_name", e.target.value)} /></Field>
-            <Field label="Telefone da empresa"><Input value={form.company_phone} onChange={(e) => set("company_phone", maskPhone(e.target.value))} inputMode="tel" /></Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Vínculo">
-              <Select value={form.employment_type} onValueChange={(v) => set("employment_type", v as any)}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="clt">CLT</SelectItem>
-                  <SelectItem value="autonomo">Autônomo</SelectItem>
-                  <SelectItem value="empresario">Empresário</SelectItem>
-                  <SelectItem value="servidor">Servidor público</SelectItem>
-                  <SelectItem value="aposentado">Aposentado</SelectItem>
-                  <SelectItem value="outro">Outro</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field label="Tempo no emprego (meses)"><Input type="number" min={0} value={form.time_at_job_months || ""} onChange={(e) => set("time_at_job_months", parseInt(e.target.value) || 0)} /></Field>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Renda mensal"><Input value={form.monthly_income ? maskMoney(String(Math.round(form.monthly_income * 100))) : ""} onChange={(e) => set("monthly_income", parseMoney(e.target.value))} inputMode="numeric" placeholder="R$ 0,00" /></Field>
-            <Field label="Outras rendas (opcional)"><Input value={form.other_income ? maskMoney(String(Math.round(form.other_income * 100))) : ""} onChange={(e) => set("other_income", parseMoney(e.target.value))} inputMode="numeric" placeholder="R$ 0,00" /></Field>
-          </div>
-        </Section>
-      )}
-
-      {step === 3 && (
-        <Section title="Proposta e referências" subtitle="Como você quer financiar e quem indica você.">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Entrada"><Input value={form.down_payment ? maskMoney(String(Math.round(form.down_payment * 100))) : ""} onChange={(e) => set("down_payment", parseMoney(e.target.value))} inputMode="numeric" placeholder="R$ 0,00" /></Field>
-            <Field label="Parcelas"><Input type="number" min={6} max={72} value={form.installments} onChange={(e) => set("installments", parseInt(e.target.value) || 48)} /></Field>
-            <Field label="Parcela desejada"><Input value={form.desired_installment_value ? maskMoney(String(Math.round(form.desired_installment_value * 100))) : ""} onChange={(e) => set("desired_installment_value", parseMoney(e.target.value))} inputMode="numeric" placeholder="R$ 0,00" /></Field>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-4">
-            <Checkbox id="trade" checked={form.has_trade_in} onCheckedChange={(v) => set("has_trade_in", !!v)} />
-            <Label htmlFor="trade" className="cursor-pointer">Vou dar um carro na troca</Label>
-          </div>
-          {form.has_trade_in && (
-            <Field label="Descreva o carro da troca (marca, modelo, ano, KM)"><Textarea value={form.trade_in_description} onChange={(e) => set("trade_in_description", e.target.value)} rows={2} /></Field>
-          )}
-
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <Label>Referências pessoais (mín. 2)</Label>
-              {form.references.length < 3 && (
-                <Button type="button" variant="ghost" size="sm" onClick={() => setForm((f) => ({ ...f, references: [...f.references, { name: "", phone: "", relationship: "" }] }))}>
-                  <Plus className="size-4" /> Adicionar
-                </Button>
-              )}
             </div>
-            <div className="space-y-3">
-              {form.references.map((r, i) => (
-                <div key={i} className="grid gap-2 rounded-lg border border-border bg-card p-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
-                  <Input placeholder="Nome" value={r.name} onChange={(e) => setForm((f) => { const a = [...f.references]; a[i] = { ...a[i], name: e.target.value }; return { ...f, references: a }; })} />
-                  <Input placeholder="Telefone" value={r.phone} onChange={(e) => setForm((f) => { const a = [...f.references]; a[i] = { ...a[i], phone: maskPhone(e.target.value) }; return { ...f, references: a }; })} />
-                  <Input placeholder="Vínculo (amigo, primo...)" value={r.relationship} onChange={(e) => setForm((f) => { const a = [...f.references]; a[i] = { ...a[i], relationship: e.target.value }; return { ...f, references: a }; })} />
-                  {form.references.length > 2 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => setForm((f) => ({ ...f, references: f.references.filter((_, j) => j !== i) }))}><Trash2 className="size-4" /></Button>
-                  )}
+            <div>
+              <div className="car-price">{priceBRL(vehicle.sale_price)}</div>
+              {vehicle.fipe_value ? <div className="car-fipe">FIPE {priceBRL(vehicle.fipe_value)}</div> : null}
+            </div>
+          </div>
+        </div>
+
+        {/* PROGRESS */}
+        <div className="progress-wrap">
+          <div className="progress-header">
+            <span className="progress-title">
+              {pending ? "⏳ Aguardando aprovação do vendedor" : `Etapa ${step + 1} de ${STEP_LABELS.length} — ${STEP_LABELS[step]}`}
+            </span>
+            <span className="progress-pct">{pct}%</span>
+          </div>
+          <div className="progress-track">
+            <div className="progress-fill" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        {/* STEPS DOTS */}
+        <div className="steps-nav">
+          {STEP_LABELS.map((_, i) => (
+            <div key={i} className={`step-dot ${pending ? "done" : i < step ? "done" : i === step ? "active" : ""}`} />
+          ))}
+        </div>
+
+        {!pending && (
+          <>
+            {step === 0 && (
+              <div className="form-section active">
+                <SectionHeader nr="Etapa 01 — Identificação" title={<>Dados<br />Pessoais</>} sub="Informações básicas para análise de crédito" />
+                <FG label="Nome completo" req>
+                  <input className="field-input" value={form.full_name} onChange={(e) => set("full_name", e.target.value)} placeholder="Como está no documento" />
+                </FG>
+                <div className="field-row">
+                  <FG label="CPF" req>
+                    <input className="field-input" inputMode="numeric" value={form.cpf} onChange={(e) => set("cpf", maskCPF(e.target.value))} placeholder="000.000.000-00" maxLength={14} />
+                  </FG>
+                  <FG label="Data de Nasc." req>
+                    <input className="field-input" inputMode="numeric" value={form.birth_date_br} onChange={(e) => set("birth_date_br", maskDate(e.target.value))} placeholder="DD/MM/AAAA" maxLength={10} />
+                  </FG>
                 </div>
-              ))}
+                <FG label="Nome da mãe" req>
+                  <input className="field-input" value={form.mother_name} onChange={(e) => set("mother_name", e.target.value)} placeholder="Nome completo da mãe" />
+                </FG>
+                <div className="field-row">
+                  <FG label="Estado civil" req>
+                    <select className="field-select" value={form.marital_status} onChange={(e) => set("marital_status", e.target.value)}>
+                      <option value="">Selecione</option>
+                      <option value="solteiro">Solteiro(a)</option>
+                      <option value="casado">Casado(a)</option>
+                      <option value="divorciado">Divorciado(a)</option>
+                      <option value="viuvo">Viúvo(a)</option>
+                      <option value="uniao_estavel">União estável</option>
+                    </select>
+                  </FG>
+                  <FG label="Escolaridade">
+                    <select className="field-select" value={form.escolaridade} onChange={(e) => set("escolaridade", e.target.value)}>
+                      <option value="">Selecione</option>
+                      <option>Fundamental</option>
+                      <option>Médio</option>
+                      <option>Superior incompleto</option>
+                      <option>Superior completo</option>
+                      <option>Pós-graduação</option>
+                    </select>
+                  </FG>
+                </div>
+                <div className="field-row">
+                  <FG label="WhatsApp" req>
+                    <input className="field-input" inputMode="tel" value={form.whatsapp} onChange={(e) => set("whatsapp", maskPhone(e.target.value))} placeholder="(00) 00000-0000" maxLength={15} />
+                  </FG>
+                  <FG label="Email">
+                    <input className="field-input" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="seu@email.com" />
+                  </FG>
+                </div>
+                <div className="info-box">
+                  <span className="info-icon">🔒</span>
+                  <span>Seus dados são protegidos e usados apenas para análise de crédito. Não compartilhamos com terceiros.</span>
+                </div>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="form-section active">
+                <SectionHeader nr="Etapa 02 — Localização" title={<>Endereço<br />Residencial</>} sub="Endereço atual onde você reside" />
+                <div className="field-row">
+                  <FG label="CEP" req>
+                    <input className="field-input" inputMode="numeric" value={form.cep} onChange={(e) => set("cep", maskCEP(e.target.value))} onBlur={onCepBlur} placeholder="00000-000" maxLength={9} />
+                    <div className="field-hint">{cepLoading ? "Buscando..." : "🔍 Preenche o endereço automaticamente"}</div>
+                  </FG>
+                  <FG label="Número" req>
+                    <input className="field-input" value={form.number} onChange={(e) => set("number", e.target.value)} placeholder="123" />
+                  </FG>
+                </div>
+                <FG label="Rua / Logradouro" req>
+                  <input className="field-input" value={form.street} onChange={(e) => set("street", e.target.value)} placeholder="Preenchido pelo CEP" />
+                </FG>
+                <div className="field-row">
+                  <FG label="Bairro" req>
+                    <input className="field-input" value={form.neighborhood} onChange={(e) => set("neighborhood", e.target.value)} placeholder="Seu bairro" />
+                  </FG>
+                  <FG label="Complemento">
+                    <input className="field-input" value={form.complement} onChange={(e) => set("complement", e.target.value)} placeholder="Apto, Bloco..." />
+                  </FG>
+                </div>
+                <div className="field-row">
+                  <FG label="Cidade" req>
+                    <input className="field-input" value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Sua cidade" />
+                  </FG>
+                  <FG label="Estado" req>
+                    <select className="field-select" value={form.state} onChange={(e) => set("state", e.target.value)}>
+                      {["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map((uf) => (
+                        <option key={uf}>{uf}</option>
+                      ))}
+                    </select>
+                  </FG>
+                </div>
+                <FG label="Tempo de residência">
+                  <select className="field-select" value={form.residence_time} onChange={(e) => set("residence_time", e.target.value)}>
+                    <option value="">Selecione</option>
+                    <option>Menos de 1 ano</option>
+                    <option>1 a 2 anos</option>
+                    <option>2 a 5 anos</option>
+                    <option>Mais de 5 anos</option>
+                  </select>
+                </FG>
+                <FG label="Tipo de moradia">
+                  <div className="options-grid">
+                    {[
+                      { v: "propria", icon: "🏠", label: "Própria" },
+                      { v: "alugada", icon: "📋", label: "Alugada" },
+                      { v: "familiar", icon: "👨‍👩‍👧", label: "Familiar" },
+                      { v: "outro", icon: "🏢", label: "Funcional" },
+                    ].map((o) => (
+                      <div key={o.v} className={`option-card ${form.residence_type === o.v ? "selected" : ""}`} onClick={() => set("residence_type", o.v)}>
+                        <div className="option-icon">{o.icon}</div>
+                        <div className="option-label">{o.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </FG>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="form-section active">
+                <SectionHeader nr="Etapa 03 — Financeiro" title={<>Renda e<br />Profissão</>} sub="Informações para análise de capacidade de pagamento" />
+                <FG label="Situação profissional" req>
+                  <div className="options-grid">
+                    {[
+                      { v: "clt", icon: "💼", label: "CLT", sub: "Empregado" },
+                      { v: "empresario", icon: "🏢", label: "Empresário", sub: "CNPJ próprio" },
+                      { v: "autonomo", icon: "🔧", label: "Autônomo", sub: "Por conta própria" },
+                      { v: "aposentado", icon: "👴", label: "Aposentado", sub: "INSS" },
+                    ].map((o) => (
+                      <div key={o.v} className={`option-card ${form.employment_type === o.v ? "selected" : ""}`} onClick={() => set("employment_type", o.v)}>
+                        <div className="option-icon">{o.icon}</div>
+                        <div className="option-label">{o.label}</div>
+                        <div className="option-sub">{o.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+                </FG>
+                <FG label="Empresa / Empregador">
+                  <input className="field-input" value={form.company_name} onChange={(e) => set("company_name", e.target.value)} placeholder="Nome da empresa" />
+                </FG>
+                <FG label="Cargo / Função">
+                  <input className="field-input" value={form.occupation} onChange={(e) => set("occupation", e.target.value)} placeholder="Seu cargo atual" />
+                </FG>
+                <div className="field-row">
+                  <FG label="Renda mensal" req>
+                    <input className="field-input" inputMode="numeric" value={form.monthly_income ? maskMoney(String(Math.round(form.monthly_income * 100))) : ""} onChange={(e) => set("monthly_income", parseMoney(e.target.value))} placeholder="R$ 0,00" />
+                  </FG>
+                  <FG label="Outras rendas">
+                    <input className="field-input" inputMode="numeric" value={form.other_income ? maskMoney(String(Math.round(form.other_income * 100))) : ""} onChange={(e) => set("other_income", parseMoney(e.target.value))} placeholder="R$ 0,00" />
+                  </FG>
+                </div>
+                <FG label="Tempo no emprego atual">
+                  <select className="field-select" value={form.time_at_job} onChange={(e) => set("time_at_job", e.target.value)}>
+                    <option value="">Selecione</option>
+                    <option>Menos de 6 meses</option>
+                    <option>6 meses a 1 ano</option>
+                    <option>1 a 2 anos</option>
+                    <option>2 a 5 anos</option>
+                    <option>Mais de 5 anos</option>
+                  </select>
+                </FG>
+                <div className="divider" />
+                <FG label="Entrada disponível">
+                  <input className="field-input" inputMode="numeric" value={form.down_payment ? maskMoney(String(Math.round(form.down_payment * 100))) : ""} onChange={(e) => set("down_payment", parseMoney(e.target.value))} placeholder="R$ 0,00" />
+                  <div className="field-hint">💡 Maior entrada = menor parcela e maior chance de aprovação</div>
+                </FG>
+                <FG label="Prazo desejado">
+                  <div className="options-grid">
+                    {[24, 36, 48, 60].map((p) => (
+                      <div key={p} className={`option-card ${form.installments === p ? "selected" : ""}`} onClick={() => set("installments", p)}>
+                        <div className="option-label">{p}x</div>
+                        <div className="option-sub">{p / 12} anos</div>
+                      </div>
+                    ))}
+                  </div>
+                </FG>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="form-section active">
+                <SectionHeader nr="Etapa 04 — Documentos" title={<>Envie seus<br />Documentos</>} sub="Fotos claras e legíveis. Anexe os documentos para acelerar a análise." />
+                <div className="ai-badge">
+                  <div className="ai-dot" />
+                  Envio seguro — documentos arquivados com criptografia
+                </div>
+                <div className="doc-grid">
+                  {DOC_TYPES.map((d) => {
+                    const file = docs[d.k];
+                    return (
+                      <div key={d.k} className={`doc-item ${file ? "uploaded" : ""}`} onClick={() => fileRefs.current[d.k]?.click()}>
+                        <div className="doc-icon">{d.icon}</div>
+                        <div className="doc-content">
+                          <div className="doc-name">{d.label}</div>
+                          <div className="doc-desc">{file ? file.name : d.desc}</div>
+                        </div>
+                        <div className="doc-action">{file ? "✓" : "+ Enviar"}</div>
+                        <input
+                          ref={(el) => { fileRefs.current[d.k] = el; }}
+                          type="file" accept="image/*,application/pdf" style={{ display: "none" }}
+                          onChange={(e) => uploadField(d.k, e.target.files?.[0] ?? null)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="info-box" style={{ marginTop: 16 }}>
+                  <span className="info-icon">🤖</span>
+                  <span>Seus documentos ficam protegidos e visíveis apenas para o vendedor responsável pela sua ficha.</span>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="form-section active">
+                <SectionHeader nr="Etapa 05 — Análise" title={<>Escolha os<br />Bancos</>} sub="Sua ficha será enviada simultaneamente para todos os bancos selecionados." />
+                <div className="banks-grid">
+                  {BANKS.map((b) => {
+                    const on = selectedBanks.includes(b.id);
+                    return (
+                      <div key={b.id} className={`bank-card ${on ? "selected" : ""}`} onClick={() =>
+                        setSelectedBanks((s) => on ? s.filter((x) => x !== b.id) : [...s, b.id])
+                      }>
+                        <div className="bank-icon" style={{ background: b.tint }}>{b.icon}</div>
+                        <div><div className="bank-name">{b.name}</div></div>
+                        <div className="bank-check">{on ? "✓" : ""}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="info-box" style={{ marginTop: 16 }}>
+                  <span className="info-icon">⚡</span>
+                  <span>Sua ficha será enviada para todos os bancos selecionados simultaneamente. Você recebe as respostas num único painel.</span>
+                </div>
+                <div className="divider" />
+                <FG label="Observações para o vendedor">
+                  <textarea className="field-input" style={{ height: 90, resize: "none", lineHeight: 1.6 }} value={form.vendor_notes} onChange={(e) => set("vendor_notes", e.target.value)} placeholder="Alguma informação adicional? Restrição no nome, entrada parcelada, permuta..." />
+                </FG>
+              </div>
+            )}
+          </>
+        )}
+
+        {pending && (
+          <div className="pending-screen active">
+            <div className="pending-icon">⏳</div>
+            <div className="pending-title">Ficha<br />Recebida!</div>
+            <div className="pending-sub">Seus dados foram salvos com segurança.<br />Estamos te direcionando para a confirmação...</div>
+            <div className="pending-status">
+              <div className="pending-dot" />
+              <div style={{ textAlign: "left", flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ficha-white)" }}>Notificando o vendedor</div>
+                <div style={{ fontSize: 12, color: "var(--ficha-muted)", marginTop: 2 }}>Você receberá retorno em instantes</div>
+              </div>
             </div>
           </div>
+        )}
 
-          <div>
-            <Label className="mb-2 block">Documentos (envie depois também é possível, mas acelera)</Label>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                { k: "cnh", label: "CNH" },
-                { k: "comprovante_renda", label: "Comprovante de renda" },
-                { k: "comprovante_endereco", label: "Comprovante de endereço" },
-              ].map((d) => (
-                <FileBox key={d.k} label={d.label} file={docs[d.k]} onChange={(f) => setDocs((s) => ({ ...s, [d.k]: f }))} />
-              ))}
-            </div>
+        {/* BOTTOM NAV */}
+        {!pending && (
+          <div className="bottom-nav">
+            {step > 0 && (
+              <button className="btn-back" type="button" onClick={goPrev} disabled={submitting}>← Voltar</button>
+            )}
+            <button className="btn-next" type="button" onClick={goNext} disabled={submitting}>
+              {step === STEP_LABELS.length - 1 ? "🚀 Enviar ficha" : "Continuar →"}
+            </button>
           </div>
-        </Section>
-      )}
-
-      {step === 4 && (
-        <Section title="Termo e assinatura" subtitle="Última etapa — confirme e assine.">
-          <div className="rounded-lg border border-border bg-card p-4 text-xs text-muted-foreground">
-            <p className="font-medium text-foreground">Termo de Consentimento — LGPD (Lei 13.709/2018)</p>
-            <p className="mt-2">
-              Você autoriza <span className="text-foreground font-medium">{profile.store_name}</span> a coletar, armazenar e utilizar os dados informados nesta ficha
-              com a finalidade exclusiva de <span className="text-foreground">análise de crédito e intermediação de financiamento veicular</span>.
-              Os dados poderão ser compartilhados com instituições financeiras parceiras para essa finalidade.
-              Você pode revogar este consentimento a qualquer momento contatando a loja. Retenção: pelo prazo legal aplicável.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <Checkbox checked={form.consent_lgpd} onCheckedChange={(v) => set("consent_lgpd", !!v)} className="mt-0.5" />
-              <span className="text-sm">Li e aceito o termo de consentimento LGPD acima. <span className="text-red-400">*</span></span>
-            </label>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <Checkbox checked={form.consent_score} onCheckedChange={(v) => set("consent_score", !!v)} className="mt-0.5" />
-              <span className="text-sm">Autorizo consulta ao meu score de crédito (opcional).</span>
-            </label>
-          </div>
-
-          <div>
-            <Label className="mb-2 block">Sua assinatura</Label>
-            <div className="overflow-hidden rounded-lg border border-border bg-white">
-              <SignatureCanvas ref={sigRef} penColor="#000" canvasProps={{ className: "w-full h-40" }} />
-            </div>
-            <div className="mt-2 flex justify-end">
-              <Button type="button" variant="ghost" size="sm" onClick={() => sigRef.current?.clear()}>Limpar assinatura</Button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="size-4 text-green-500" />
-            Conexão segura. IP e horário registrados para validade jurídica.
-          </div>
-        </Section>
-      )}
-
-      {/* nav */}
-      <div className="sticky bottom-0 z-10 -mx-4 mt-8 flex items-center justify-between gap-3 border-t border-border bg-background/95 px-4 py-4 backdrop-blur">
-        <Button type="button" variant="ghost" onClick={prev} disabled={step === 0 || submitting}>
-          <ArrowLeft className="size-4" /> Voltar
-        </Button>
-        {step < STEPS.length - 1 ? (
-          <Button type="button" onClick={next} className="shadow-glow">Continuar <ArrowRight className="size-4" /></Button>
-        ) : (
-          <Button type="button" onClick={handleSubmit} disabled={submitting} className="shadow-glow">
-            {submitting ? <><Loader2 className="size-4 animate-spin" /> Enviando...</> : <><CheckCircle2 className="size-4" /> Enviar ficha</>}
-          </Button>
         )}
       </div>
+    </>
+  );
+}
+
+function SectionHeader({ nr, title, sub }: { nr: string; title: React.ReactNode; sub: string }) {
+  return (
+    <div className="section-header">
+      <div className="section-number">{nr}</div>
+      <div className="section-title">{title}</div>
+      <div className="section-subtitle">{sub}</div>
     </div>
   );
 }
 
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+function FG({ label, req, children }: { label: string; req?: boolean; children: React.ReactNode }) {
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
-      </div>
-      <div className="space-y-4">{children}</div>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
+    <div className="field-group">
+      <label className="field-label">{label} {req && <span>*</span>}</label>
       {children}
     </div>
   );
 }
 
-function FileBox({ label, file, onChange }: { label: string; file: File | null; onChange: (f: File | null) => void }) {
-  return (
-    <label className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-card p-4 text-center text-xs transition-colors hover:border-primary/50">
-      <Upload className="size-5 text-muted-foreground" />
-      <span className="font-medium">{label}</span>
-      <span className="truncate text-[10px] text-muted-foreground">{file ? file.name : "Toque para enviar"}</span>
-      <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
-    </label>
-  );
+const CSS = `
+.ficha-root {
+  --ficha-orange: #E8610A;
+  --ficha-black: #0D0D0D;
+  --ficha-graphite: #1A1A1A;
+  --ficha-g2: #222;
+  --ficha-g3: #2a2a2a;
+  --ficha-g4: #333;
+  --ficha-white: #F0F0F0;
+  --ficha-muted: #777;
+  --ficha-green: #3ecf8e;
+  --ficha-blue: #4a9eff;
+  --ficha-red: #ff4d4d;
+  --ficha-yellow: #f5c842;
+  background: var(--ficha-black);
+  color: var(--ficha-white);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  padding-bottom: 110px;
+  /* propagate var from root */
+  --ficha-orange-eff: var(--ficha-orange);
 }
+.ficha-root *, .ficha-root *:before, .ficha-root *:after { box-sizing: border-box; }
+.ficha-root .dealer-header { background: var(--ficha-graphite); border-bottom: 2px solid var(--ficha-orange); padding: 16px 20px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 100; }
+.ficha-root .dealer-logo { width: 42px; height: 42px; border-radius: 10px; background: var(--ficha-orange); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; color: white; flex-shrink: 0; overflow:hidden; }
+.ficha-root .dealer-info { flex: 1; }
+.ficha-root .dealer-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; color: var(--ficha-white); }
+.ficha-root .dealer-sub { font-size: 11px; color: var(--ficha-muted); }
+.ficha-root .secure-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ficha-green); font-weight: 600; }
+.ficha-root .car-card { background: var(--ficha-graphite); margin: 16px; border-radius: 14px; overflow: hidden; border: 1px solid var(--ficha-g4); }
+.ficha-root .car-image { width: 100%; height: 160px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.ficha-root .car-badge { position: absolute; top: 12px; right: 12px; background: var(--ficha-orange); color: white; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px; padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; }
+.ficha-root .car-info { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ficha-root .car-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; color: var(--ficha-white); line-height: 1.1; }
+.ficha-root .car-details { font-size: 12px; color: var(--ficha-muted); margin-top: 2px; }
+.ficha-root .car-price { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 22px; color: var(--ficha-orange); text-align: right; line-height: 1; }
+.ficha-root .car-fipe { font-size: 10px; color: var(--ficha-muted); text-align: right; margin-top: 2px; }
+.ficha-root .progress-wrap { padding: 0 16px 16px; }
+.ficha-root .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+.ficha-root .progress-title { font-size: 12px; font-weight: 600; color: var(--ficha-muted); }
+.ficha-root .progress-pct { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--ficha-orange); }
+.ficha-root .progress-track { height: 6px; background: var(--ficha-g3); border-radius: 3px; overflow: hidden; }
+.ficha-root .progress-fill { height: 100%; background: linear-gradient(90deg, var(--ficha-orange), #ff8c00); border-radius: 3px; transition: width 0.5s ease; }
+.ficha-root .steps-nav { display: flex; padding: 0 16px; gap: 6px; margin-bottom: 20px; }
+.ficha-root .step-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--ficha-g4); transition: background 0.3s; }
+.ficha-root .step-dot.active { background: var(--ficha-orange); }
+.ficha-root .step-dot.done { background: var(--ficha-green); }
+.ficha-root .form-section { display: none; padding: 0 16px; animation: ficha-fade 0.3s ease; }
+.ficha-root .form-section.active { display: block; }
+@keyframes ficha-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.ficha-root .section-header { margin-bottom: 24px; }
+.ficha-root .section-number { font-size: 11px; font-weight: 700; color: var(--ficha-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.ficha-root .section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 32px; color: var(--ficha-white); line-height: 1; }
+.ficha-root .section-subtitle { font-size: 13px; color: var(--ficha-muted); margin-top: 6px; font-weight: 300; }
+.ficha-root .field-group { margin-bottom: 18px; }
+.ficha-root .field-label { font-size: 12px; font-weight: 600; color: var(--ficha-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 7px; display: block; }
+.ficha-root .field-label span { color: var(--ficha-orange); }
+.ficha-root .field-input { width: 100%; background: var(--ficha-g2); border: 1.5px solid var(--ficha-g4); border-radius: 10px; padding: 13px 16px; color: var(--ficha-white); font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s; -webkit-appearance: none; }
+.ficha-root .field-input:focus { border-color: var(--ficha-orange); background: rgba(232,97,10,0.04); }
+.ficha-root .field-input::placeholder { color: var(--ficha-g4); }
+.ficha-root .field-select { width: 100%; background: var(--ficha-g2); border: 1.5px solid var(--ficha-g4); border-radius: 10px; padding: 13px 16px; color: var(--ficha-white); font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s; -webkit-appearance: none; cursor: pointer; }
+.ficha-root .field-select:focus { border-color: var(--ficha-orange); }
+.ficha-root .field-select option { background: var(--ficha-g2); }
+.ficha-root .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ficha-root .field-hint { font-size: 11px; color: var(--ficha-muted); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.ficha-root .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ficha-root .option-card { background: var(--ficha-g2); border: 1.5px solid var(--ficha-g4); border-radius: 10px; padding: 14px 12px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.ficha-root .option-card:hover { border-color: var(--ficha-orange); }
+.ficha-root .option-card.selected { border-color: var(--ficha-orange); background: rgba(232,97,10,0.08); }
+.ficha-root .option-icon { font-size: 24px; margin-bottom: 6px; }
+.ficha-root .option-label { font-size: 13px; font-weight: 600; color: var(--ficha-white); }
+.ficha-root .option-sub { font-size: 11px; color: var(--ficha-muted); margin-top: 2px; }
+.ficha-root .banks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ficha-root .bank-card { background: var(--ficha-g2); border: 1.5px solid var(--ficha-g4); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+.ficha-root .bank-card:hover { border-color: var(--ficha-orange); }
+.ficha-root .bank-card.selected { border-color: var(--ficha-green); background: rgba(62,207,142,0.05); }
+.ficha-root .bank-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.ficha-root .bank-name { font-size: 13px; font-weight: 600; color: var(--ficha-white); }
+.ficha-root .bank-check { margin-left: auto; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ficha-g4); display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all 0.2s; }
+.ficha-root .bank-card.selected .bank-check { background: var(--ficha-green); border-color: var(--ficha-green); color: var(--ficha-black); }
+.ficha-root .doc-grid { display: grid; gap: 10px; }
+.ficha-root .doc-item { background: var(--ficha-g2); border: 1.5px dashed var(--ficha-g4); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
+.ficha-root .doc-item:hover { border-color: var(--ficha-orange); }
+.ficha-root .doc-item.uploaded { border-style: solid; border-color: var(--ficha-green); background: rgba(62,207,142,0.04); }
+.ficha-root .doc-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--ficha-g3); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.ficha-root .doc-item.uploaded .doc-icon { background: rgba(62,207,142,0.1); }
+.ficha-root .doc-content { flex: 1; min-width: 0; }
+.ficha-root .doc-name { font-size: 14px; font-weight: 600; color: var(--ficha-white); }
+.ficha-root .doc-desc { font-size: 12px; color: var(--ficha-muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ficha-root .doc-item.uploaded .doc-desc { color: var(--ficha-green); }
+.ficha-root .doc-action { font-size: 12px; font-weight: 600; color: var(--ficha-orange); flex-shrink: 0; }
+.ficha-root .doc-item.uploaded .doc-action { color: var(--ficha-green); }
+.ficha-root .ai-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(74,158,255,0.1); border: 1px solid rgba(74,158,255,0.25); border-radius: 20px; padding: 5px 12px; font-size: 11px; color: var(--ficha-blue); font-weight: 600; margin: 10px 0; }
+.ficha-root .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ficha-blue); animation: ficha-pulse 1.5s infinite; }
+@keyframes ficha-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.ficha-root .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: var(--ficha-graphite); border-top: 1px solid var(--ficha-g4); display: flex; gap: 12px; z-index: 200; }
+.ficha-root .btn-back { flex: 1; padding: 14px; border: 1.5px solid var(--ficha-g4); border-radius: 12px; background: transparent; color: var(--ficha-muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+.ficha-root .btn-back:hover { border-color: var(--ficha-white); color: var(--ficha-white); }
+.ficha-root .btn-next { flex: 3; padding: 14px; border: none; border-radius: 12px; background: var(--ficha-orange); color: white; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.ficha-root .btn-next:hover { filter: brightness(0.92); transform: translateY(-1px); }
+.ficha-root .btn-next:disabled { background: var(--ficha-g4); cursor: not-allowed; transform: none; }
+.ficha-root .divider { height: 1px; background: var(--ficha-g3); margin: 20px 0; }
+.ficha-root .info-box { background: rgba(74,158,255,0.06); border: 1px solid rgba(74,158,255,0.2); border-radius: 10px; padding: 12px 14px; font-size: 12px; color: #bbb; line-height: 1.7; margin: 14px 0; display: flex; gap: 10px; align-items: flex-start; }
+.ficha-root .info-box .info-icon { font-size: 16px; flex-shrink: 0; }
+.ficha-root .pending-screen { padding: 32px 20px; text-align: center; }
+.ficha-root .pending-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(245,200,66,0.1); border: 2px solid var(--ficha-yellow); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 24px; }
+.ficha-root .pending-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 36px; color: var(--ficha-white); margin-bottom: 8px; line-height: 1; }
+.ficha-root .pending-sub { font-size: 13px; color: var(--ficha-muted); line-height: 1.7; margin-bottom: 28px; font-weight: 300; }
+.ficha-root .pending-status { background: var(--ficha-g2); border: 1px solid rgba(245,200,66,0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.ficha-root .pending-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ficha-yellow); animation: ficha-pulse 1.5s infinite; flex-shrink: 0; }
+`;
