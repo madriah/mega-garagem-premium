@@ -14,6 +14,7 @@ const nav = [
   { to: "/cars", label: "Meus Carros", icon: Car },
   { to: "/cars/new", label: "Cadastrar Carro", icon: PlusCircle },
   { to: "/applications", label: "Fichas", icon: FileText },
+  { to: "/sellers", label: "Vendedores", icon: Users },
   { to: "/settings", label: "Configurações", icon: Settings },
 ] as const;
 
