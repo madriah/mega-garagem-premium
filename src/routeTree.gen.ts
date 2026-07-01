@@ -20,6 +20,7 @@ import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCarsRouteImport } from './routes/_authenticated/cars'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
+import { Route as LojaSlugIndexRouteImport } from './routes/loja.$slug.index'
 import { Route as LojaSlugFichaEnviadaRouteImport } from './routes/loja.$slug.ficha-enviada'
 import { Route as LojaSlugVehicleIdRouteImport } from './routes/loja.$slug.$vehicleId'
 import { Route as AuthenticatedCarsNewRouteImport } from './routes/_authenticated/cars.new'
@@ -82,6 +83,11 @@ const AuthenticatedApplicationsRoute =
     path: '/applications',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const LojaSlugIndexRoute = LojaSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LojaSlugRoute,
+} as any)
 const LojaSlugFichaEnviadaRoute = LojaSlugFichaEnviadaRouteImport.update({
   id: '/ficha-enviada',
   path: '/ficha-enviada',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/cars/new': typeof AuthenticatedCarsNewRoute
   '/loja/$slug/$vehicleId': typeof LojaSlugVehicleIdRoute
   '/loja/$slug/ficha-enviada': typeof LojaSlugFichaEnviadaRoute
+  '/loja/$slug/': typeof LojaSlugIndexRoute
   '/loja/$slug/ficha/$vehicleId': typeof LojaSlugFichaVehicleIdRoute
   '/loja/$slug/ficha/': typeof LojaSlugFichaIndexRoute
 }
@@ -142,11 +149,11 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/loja/$slug': typeof LojaSlugRouteWithChildren
   '/applications/$id': typeof AuthenticatedApplicationsIdRoute
   '/cars/new': typeof AuthenticatedCarsNewRoute
   '/loja/$slug/$vehicleId': typeof LojaSlugVehicleIdRoute
   '/loja/$slug/ficha-enviada': typeof LojaSlugFichaEnviadaRoute
+  '/loja/$slug': typeof LojaSlugIndexRoute
   '/loja/$slug/ficha/$vehicleId': typeof LojaSlugFichaVehicleIdRoute
   '/loja/$slug/ficha': typeof LojaSlugFichaIndexRoute
 }
@@ -167,6 +174,7 @@ export interface FileRoutesById {
   '/_authenticated/cars/new': typeof AuthenticatedCarsNewRoute
   '/loja/$slug/$vehicleId': typeof LojaSlugVehicleIdRoute
   '/loja/$slug/ficha-enviada': typeof LojaSlugFichaEnviadaRoute
+  '/loja/$slug/': typeof LojaSlugIndexRoute
   '/loja/$slug/ficha/$vehicleId': typeof LojaSlugFichaVehicleIdRoute
   '/loja/$slug/ficha/': typeof LojaSlugFichaIndexRoute
 }
@@ -187,6 +195,7 @@ export interface FileRouteTypes {
     | '/cars/new'
     | '/loja/$slug/$vehicleId'
     | '/loja/$slug/ficha-enviada'
+    | '/loja/$slug/'
     | '/loja/$slug/ficha/$vehicleId'
     | '/loja/$slug/ficha/'
   fileRoutesByTo: FileRoutesByTo
@@ -200,11 +209,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/sellers'
     | '/settings'
-    | '/loja/$slug'
     | '/applications/$id'
     | '/cars/new'
     | '/loja/$slug/$vehicleId'
     | '/loja/$slug/ficha-enviada'
+    | '/loja/$slug'
     | '/loja/$slug/ficha/$vehicleId'
     | '/loja/$slug/ficha'
   id:
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cars/new'
     | '/loja/$slug/$vehicleId'
     | '/loja/$slug/ficha-enviada'
+    | '/loja/$slug/'
     | '/loja/$slug/ficha/$vehicleId'
     | '/loja/$slug/ficha/'
   fileRoutesById: FileRoutesById
@@ -315,6 +325,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/applications'
       preLoaderRoute: typeof AuthenticatedApplicationsRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/loja/$slug/': {
+      id: '/loja/$slug/'
+      path: '/'
+      fullPath: '/loja/$slug/'
+      preLoaderRoute: typeof LojaSlugIndexRouteImport
+      parentRoute: typeof LojaSlugRoute
     }
     '/loja/$slug/ficha-enviada': {
       id: '/loja/$slug/ficha-enviada'
@@ -409,6 +426,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface LojaSlugRouteChildren {
   LojaSlugVehicleIdRoute: typeof LojaSlugVehicleIdRoute
   LojaSlugFichaEnviadaRoute: typeof LojaSlugFichaEnviadaRoute
+  LojaSlugIndexRoute: typeof LojaSlugIndexRoute
   LojaSlugFichaVehicleIdRoute: typeof LojaSlugFichaVehicleIdRoute
   LojaSlugFichaIndexRoute: typeof LojaSlugFichaIndexRoute
 }
@@ -416,6 +434,7 @@ interface LojaSlugRouteChildren {
 const LojaSlugRouteChildren: LojaSlugRouteChildren = {
   LojaSlugVehicleIdRoute: LojaSlugVehicleIdRoute,
   LojaSlugFichaEnviadaRoute: LojaSlugFichaEnviadaRoute,
+  LojaSlugIndexRoute: LojaSlugIndexRoute,
   LojaSlugFichaVehicleIdRoute: LojaSlugFichaVehicleIdRoute,
   LojaSlugFichaIndexRoute: LojaSlugFichaIndexRoute,
 }
