@@ -213,7 +213,11 @@ export function CreditWizard({ profile, vehicle, seller }: Props) {
         const path = `${result.id}/${type}.${ext}`;
         const { error: upErr } = await supabase.storage.from("credit-docs").upload(path, file, { upsert: true });
         if (!upErr) {
-          await supabase.from("credit_application_documents").insert({ application_id: result.id, doc_type: type, storage_path: path });
+          try {
+            await attachDoc({ data: { application_id: result.id, doc_type: type, storage_path: path } });
+          } catch (e) {
+            console.error("attachDoc failed", e);
+          }
         }
       }
 
