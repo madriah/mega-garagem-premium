@@ -81,6 +81,7 @@ const empty = {
 export function CreditWizard({ profile, vehicle, seller }: Props) {
   const navigate = useNavigate();
   const submit = useServerFn(submitApplication);
+  const attachDoc = useServerFn(attachApplicationDocument);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
