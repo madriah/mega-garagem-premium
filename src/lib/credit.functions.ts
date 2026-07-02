@@ -1,6 +1,40 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
+import { z } from "zod";
 import { ApplicationSchema } from "./credit-schema";
+
+const AttachDocSchema = z.object({
+  application_id: z.string().uuid(),
+  doc_type: z.string().min(1).max(50),
+  storage_path: z.string().min(1).max(300),
+});
+
+export const attachApplicationDocument = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => AttachDocSchema.parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Enforce storage path is scoped to this application id
+    if (!data.storage_path.startsWith(`${data.application_id}/`)) {
+      throw new Error("Invalid storage path");
+    }
+    const { data: app } = await supabaseAdmin
+      .from("credit_applications")
+      .select("id")
+      .eq("id", data.application_id)
+      .maybeSingle();
+    if (!app) throw new Error("Ficha não encontrada");
+
+    const { error } = await supabaseAdmin
+      .from("credit_application_documents")
+      .insert({
+        application_id: data.application_id,
+        doc_type: data.doc_type,
+        storage_path: data.storage_path,
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
 export const submitApplication = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => ApplicationSchema.parse(d))
