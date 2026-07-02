@@ -549,13 +549,12 @@ function Landing() {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main>
-        <Hero />
-        <TransformationCarousel />
         <WhiteLabel />
         <BeforeAfter />
         <Features />
-        <FeatureDemos />
+        <Testimonials />
         <Plans />
+
       </main>
       <Footer />
     </div>
