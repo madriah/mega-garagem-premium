@@ -300,8 +300,8 @@ function WhiteLabel() {
             <h1 className="mt-6 text-5xl md:text-6xl lg:text-7xl">
               SEU SITE, <span className="text-primary">SUA MARCA</span>.<br />
               NO AR EM MINUTOS.
+            </h1>
 
-            </h2>
             <p className="mt-4 text-muted-foreground">
               Quando você cadastra a sua loja, o sistema inteiro vira o <strong className="text-foreground">seu site profissional</strong> — com o seu logo, suas cores, seu nome e seu domínio. O cliente final nem percebe que existe MegaGaragem por trás. Você só aparece. Você vende.
             </p>
