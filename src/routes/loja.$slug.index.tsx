@@ -5,7 +5,7 @@ import { StoreTemplate } from "@/components/store-templates";
 
 export const Route = createFileRoute("/loja/$slug/")({
   loader: async ({ params }) => {
-    const { data: profile } = await supabase.from("public_profiles" as any).select("*").eq("store_slug", params.slug).maybeSingle();
+    const { data: profile } = await (supabase as any).from("public_profiles").select("*").eq("store_slug", params.slug).maybeSingle() as { data: any };
     if (!profile) throw notFound();
     const { data: vehicles } = await supabase.from("vehicles").select("*").eq("user_id", profile.id).eq("is_active", true).order("created_at", { ascending: false });
     const list = vehicles ?? [];
