@@ -36,34 +36,50 @@ function Header() {
   );
 }
 
-function Hero() {
+function Testimonials() {
+  const items = [
+    { name: "Rafael Menezes", store: "RM Multimarcas · Campinas/SP", text: "Em 3 semanas usando a MegaGaragem vendi 4 carros que estavam parados há mais de 2 meses. O site com a minha marca faz o cliente chegar decidido.", rating: 5 },
+    { name: "Juliana Prado", store: "Prado Veículos · Belo Horizonte/MG", text: "Parei de pagar designer. As artes de feed saem prontas com meu logo e o preço abaixo da FIPE. Meu Instagram bombou.", rating: 5 },
+    { name: "Anderson Lopes", store: "Lopes Auto Center · Curitiba/PR", text: "O disparo em massa no WhatsApp foi um divisor. Mando o carro novo pra 900 contatos em 1 clique e já cai lead na hora.", rating: 5 },
+    { name: "Camila Ferreira", store: "CF Garage · Ribeirão Preto/SP", text: "A ficha digital pra financiamento resolveu minha vida. O cliente preenche pelo celular, chega tudo pronto e eu só fecho.", rating: 5 },
+    { name: "Diego Almeida", store: "Almeida Motors · Porto Alegre/RS", text: "Site profissional, dashboard, artes, IA nas fotos… tudo por menos do que eu pagava só o gerente de tráfego. Recomendo demais.", rating: 5 },
+    { name: "Patrícia Souza", store: "PS Auto · Salvador/BA", text: "Meus carros aparecem no Google com a minha marca, não mais como anúncio genérico. A percepção de valor mudou.", rating: 5 },
+  ];
   return (
-    <section className="relative overflow-hidden bg-hero">
-      <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
-        <div className="mx-auto max-w-3xl text-center">
+    <section className="border-t border-border/40 bg-background py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
-            <Zap className="size-3" /> Tudo-em-um para garajistas
+            <Star className="size-3 fill-current" /> Garajistas que já usam
           </span>
-          <h1 className="mt-6 text-5xl md:text-7xl lg:text-8xl">
-            <span className="text-foreground">DA PLACA AO</span><br />
-            <span className="text-primary">CARRO VENDIDO</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            Site profissional com a sua marca, showroom de fotos, edição com IA, artes para feed e stories, Reels automáticos, disparo em massa no WhatsApp e dashboard — tudo em uma plataforma.
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <Link to="/auth" search={{ mode: "register" }}>
-              <Button size="lg" className="shadow-glow">Criar minha garagem</Button>
-            </Link>
-            <a href="#planos">
-              <Button size="lg" variant="outline">Ver planos</Button>
-            </a>
-          </div>
+          <h2 className="mt-6 text-4xl md:text-5xl">
+            LOJAS QUE PARARAM DE <span className="text-primary">DEPENDER DE MARKETPLACE</span>
+          </h2>
+        </div>
+        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {items.map((t) => (
+            <div key={t.name} className="rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/50">
+              <Quote className="size-6 text-primary/60" />
+              <p className="mt-4 text-sm leading-relaxed text-foreground">"{t.text}"</p>
+              <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+                <div>
+                  <div className="text-sm font-bold text-foreground">{t.name}</div>
+                  <div className="text-xs text-muted-foreground">{t.store}</div>
+                </div>
+                <div className="flex gap-0.5">
+                  {Array.from({ length: t.rating }).map((_, i) => (
+                    <Star key={i} className="size-3.5 fill-primary text-primary" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
+
 
 const features = [
   { icon: Globe, title: "SITE PROFISSIONAL AUTOMÁTICO", desc: "Cadastrou? Pronto. Seu site white-label entra no ar com a sua marca, suas cores e seu domínio." },
