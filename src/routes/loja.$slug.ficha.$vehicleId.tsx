@@ -8,11 +8,11 @@ export const Route = createFileRoute("/loja/$slug/ficha/$vehicleId")({
   validateSearch: z.object({ seller: z.string().uuid().optional() }),
   loaderDeps: ({ search }) => ({ seller: search.seller }),
   loader: async ({ params, deps }) => {
-    const { data: profile } = await supabase
-      .from("profiles")
+    const { data: profile } = await (supabase as any)
+      .from("public_profiles")
       .select("id,store_name,store_slug,whatsapp,logo_url,accent_color,city")
       .eq("store_slug", params.slug)
-      .maybeSingle();
+      .maybeSingle() as { data: any };
     if (!profile) throw notFound();
 
     const { data: vehicle } = await supabase
