@@ -9,8 +9,9 @@ import depoisCar from "@/assets/depois-car.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MegaGaragem — Venda mais carros, sem depender de marketplace" },
-      { name: "description", content: "Sua garagem virtual profissional. Cadastre carros pela placa, gere catálogo público e receba contatos direto no WhatsApp." },
+      { title: "MegaGaragem — Seu site white-label para vender mais carros" },
+      { name: "description", content: "Site profissional com a sua marca, catálogo, artes, disparo no WhatsApp e ficha digital de financiamento. Tudo em minutos." },
+
     ],
   }),
   component: Landing,
