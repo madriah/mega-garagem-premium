@@ -290,16 +290,17 @@ function BeforeAfter() {
 
 function WhiteLabel() {
   return (
-    <section className="border-t border-border/40 bg-background py-24">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="relative overflow-hidden bg-hero">
+      <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-primary">
               <Globe className="size-3" /> Site white-label
             </span>
-            <h2 className="mt-6 text-4xl md:text-5xl">
+            <h1 className="mt-6 text-5xl md:text-6xl lg:text-7xl">
               SEU SITE, <span className="text-primary">SUA MARCA</span>.<br />
               NO AR EM MINUTOS.
+
             </h2>
             <p className="mt-4 text-muted-foreground">
               Quando você cadastra a sua loja, o sistema inteiro vira o <strong className="text-foreground">seu site profissional</strong> — com o seu logo, suas cores, seu nome e seu domínio. O cliente final nem percebe que existe MegaGaragem por trás. Você só aparece. Você vende.
