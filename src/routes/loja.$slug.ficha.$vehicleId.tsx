@@ -27,8 +27,8 @@ export const Route = createFileRoute("/loja/$slug/ficha/$vehicleId")({
 
     let seller: { id: string; name: string; whatsapp: string } | null = null;
     if (deps.seller) {
-      const { data: s } = await supabase
-        .from("sellers" as any)
+      const { data: s } = await (supabase as any)
+        .from("public_sellers")
         .select("id,name,whatsapp,is_active,user_id")
         .eq("id", deps.seller)
         .maybeSingle();
