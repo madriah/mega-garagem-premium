@@ -83,19 +83,16 @@ function Testimonials() {
 
 
 const features = [
-  { icon: Globe, title: "SITE PROFISSIONAL AUTOMÁTICO", desc: "Cadastrou? Pronto. Seu site white-label entra no ar com a sua marca, suas cores e seu domínio." },
-  { icon: Palette, title: "IDENTIDADE VISUAL DA SUA LOJA", desc: "Logo, cores e nome aplicados em todo o catálogo, artes e materiais — você no centro, sempre." },
-  { icon: Camera, title: "SHOWROOM DE FOTOS PRO", desc: "Galeria estilo concessionária premium para cada veículo do seu estoque." },
-  { icon: Wand2, title: "EDIÇÃO DE FOTOS COM IA", desc: "Fundo limpo, iluminação de estúdio e correção automática — sem precisar de designer." },
-  { icon: ImageIcon, title: "ARTES PARA FEED E STORIES", desc: "Posts 1:1 e Stories 9:16 gerados em 1 clique com preço, FIPE e CTA do WhatsApp." },
-  { icon: FileText, title: "DESCRIÇÃO/COPY COM IA", desc: "Texto profissional pronto para WhatsApp, feed e site — a partir dos dados FIPE." },
-  { icon: Film, title: "VÍDEOS REELS AUTOMÁTICOS", desc: "Reels prontos com fotos do carro, trilha e identidade visual da sua loja." },
+  { icon: Globe, title: "SITE PROFISSIONAL AUTOMÁTICO", desc: "Cadastrou? Pronto. Seu site white-label entra no ar com a sua marca e suas cores." },
+  { icon: Palette, title: "IDENTIDADE DA SUA LOJA", desc: "Logo e cores aplicados em catálogo, artes e materiais — você no centro, sempre." },
+  { icon: Wand2, title: "EDIÇÃO DE FOTOS COM IA", desc: "Fundo limpo e iluminação de estúdio — sem precisar de designer." },
+  { icon: ImageIcon, title: "ARTES PARA FEED E STORIES", desc: "Posts 1:1 e Stories 9:16 gerados em 1 clique com preço e CTA do WhatsApp." },
+  { icon: FileText, title: "DESCRIÇÃO/COPY COM IA", desc: "Texto profissional pronto para WhatsApp, feed e site em segundos." },
   { icon: Send, title: "DISPARO EM MASSA WHATSAPP", desc: "Envie o catálogo ou um veículo novo para toda a sua lista de contatos." },
-  { icon: Search, title: "CONSULTA FIPE AUTOMÁTICA", desc: "Marca, modelo e ano preenchidos automaticamente com o valor de tabela." },
-  { icon: MessageCircle, title: "LEADS DIRETO NO ZAP", desc: "Botão rastreado por veículo que abre conversa com o cliente." },
-  { icon: Car, title: "CATÁLOGO PRÓPRIO", desc: "Sua loja em megagaragem.com/loja/seu-nome ou no seu domínio." },
+  { icon: MessageCircle, title: "FICHA DIGITAL DE FINANCIAMENTO", desc: "Cliente preenche pelo celular e a proposta chega pronta pra você fechar." },
   { icon: BarChart3, title: "DASHBOARD COMPLETO", desc: "Visitas, cliques no WhatsApp e conversão por veículo em tempo real." },
 ];
+
 
 function Features() {
   return (
