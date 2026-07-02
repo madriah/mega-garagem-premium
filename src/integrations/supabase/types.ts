@@ -249,6 +249,13 @@ export type Database = {
             foreignKeyName: "credit_applications_seller_id_fkey"
             columns: ["seller_id"]
             isOneToOne: false
+            referencedRelation: "public_sellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_applications_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
             referencedRelation: "sellers"
             referencedColumns: ["id"]
           },
@@ -494,7 +501,69 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          accent_color: string | null
+          art_template: string | null
+          city: string | null
+          id: string | null
+          logo_url: string | null
+          store_name: string | null
+          store_slug: string | null
+          store_template: string | null
+          tagline: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          art_template?: string | null
+          city?: string | null
+          id?: string | null
+          logo_url?: string | null
+          store_name?: string | null
+          store_slug?: string | null
+          store_template?: string | null
+          tagline?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          art_template?: string | null
+          city?: string | null
+          id?: string | null
+          logo_url?: string | null
+          store_name?: string | null
+          store_slug?: string | null
+          store_template?: string | null
+          tagline?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      public_sellers: {
+        Row: {
+          id: string | null
+          is_active: boolean | null
+          name: string | null
+          user_id: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          id?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          user_id?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

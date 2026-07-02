@@ -9,7 +9,7 @@ import { MessageCircle, ArrowLeft, Gauge, Calendar, Palette, Fuel, FileText } fr
 
 export const Route = createFileRoute("/loja/$slug/$vehicleId")({
   loader: async ({ params }) => {
-    const { data: profile } = await supabase.from("profiles").select("*").eq("store_slug", params.slug).maybeSingle();
+    const { data: profile } = await (supabase as any).from("public_profiles").select("*").eq("store_slug", params.slug).maybeSingle() as { data: any };
     if (!profile) throw notFound();
     const { data: vehicle } = await supabase.from("vehicles").select("*").eq("id", params.vehicleId).eq("user_id", profile.id).maybeSingle();
     if (!vehicle) throw notFound();

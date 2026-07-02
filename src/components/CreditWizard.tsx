@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { submitApplication } from "@/lib/credit.functions";
+import { submitApplication, attachApplicationDocument } from "@/lib/credit.functions";
 import {
   ApplicationSchema,
   brDateToISO,
@@ -81,6 +81,7 @@ const empty = {
 export function CreditWizard({ profile, vehicle, seller }: Props) {
   const navigate = useNavigate();
   const submit = useServerFn(submitApplication);
+  const attachDoc = useServerFn(attachApplicationDocument);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
@@ -212,7 +213,11 @@ export function CreditWizard({ profile, vehicle, seller }: Props) {
         const path = `${result.id}/${type}.${ext}`;
         const { error: upErr } = await supabase.storage.from("credit-docs").upload(path, file, { upsert: true });
         if (!upErr) {
-          await supabase.from("credit_application_documents").insert({ application_id: result.id, doc_type: type, storage_path: path });
+          try {
+            await attachDoc({ data: { application_id: result.id, doc_type: type, storage_path: path } });
+          } catch (e) {
+            console.error("attachDoc failed", e);
+          }
         }
       }
 
