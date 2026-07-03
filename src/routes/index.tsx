@@ -372,10 +372,12 @@ function Landing() {
       <Header />
       <main>
         <WhiteLabel />
+        <TransformationCarousel />
         <BeforeAfter />
         <Features />
         <Testimonials />
         <Plans />
+
 
       </main>
       <Footer />
