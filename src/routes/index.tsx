@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Check, BarChart3, MessageCircle, X, Sparkles, TrendingUp, Eye, Camera, Wand2, Image as ImageIcon, Send, Globe, Palette, FileText, Star, Quote } from "lucide-react";
 import antesCar from "@/assets/antes-car.jpg";
 import depoisCar from "@/assets/depois-car.jpg";
+import { TransformationCarousel } from "@/components/TransformationCarousel";
+
 
 
 export const Route = createFileRoute("/")({
@@ -370,10 +372,12 @@ function Landing() {
       <Header />
       <main>
         <WhiteLabel />
+        <TransformationCarousel />
         <BeforeAfter />
         <Features />
         <Testimonials />
         <Plans />
+
 
       </main>
       <Footer />
