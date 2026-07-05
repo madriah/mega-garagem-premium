@@ -177,11 +177,13 @@ function CarrosselPage() {
             <Button variant="outline" size="icon" onClick={() => setCurrent((c) => Math.max(0, c - 1))} disabled={current === 0}>
               <ChevronLeft />
             </Button>
-            <div className="w-full max-w-[360px] overflow-hidden rounded-lg border shadow-lg">
-              <div style={{ transform: "scale(0.333)", transformOrigin: "top left", width: 1080, height: 1350 }}>
+            <div
+              className="overflow-hidden rounded-lg border shadow-lg"
+              style={{ width: 360, height: 450 }}
+            >
+              <div style={{ transform: "scale(0.3333)", transformOrigin: "top left", width: 1080, height: 1350 }}>
                 <SlideCard slide={slides[current]} loja={form.loja} whatsapp={form.whatsapp} />
               </div>
-              <div style={{ marginTop: -900 }} />
             </div>
             <Button variant="outline" size="icon" onClick={() => setCurrent((c) => Math.min(slides.length - 1, c + 1))} disabled={current === slides.length - 1}>
               <ChevronRight />
