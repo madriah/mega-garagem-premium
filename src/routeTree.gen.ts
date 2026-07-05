@@ -19,6 +19,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCarsRouteImport } from './routes/_authenticated/cars'
+import { Route as AuthenticatedCarrosselRouteImport } from './routes/_authenticated/carrossel'
 import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
 import { Route as LojaSlugIndexRouteImport } from './routes/loja.$slug.index'
 import { Route as LojaSlugFichaEnviadaRouteImport } from './routes/loja.$slug.ficha-enviada'
@@ -77,6 +78,11 @@ const AuthenticatedCarsRoute = AuthenticatedCarsRouteImport.update({
   path: '/cars',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCarrosselRoute = AuthenticatedCarrosselRouteImport.update({
+  id: '/carrossel',
+  path: '/carrossel',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedApplicationsRoute =
   AuthenticatedApplicationsRouteImport.update({
     id: '/applications',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/applications': typeof AuthenticatedApplicationsRouteWithChildren
+  '/carrossel': typeof AuthenticatedCarrosselRoute
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/sellers': typeof AuthenticatedSellersRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/applications': typeof AuthenticatedApplicationsRouteWithChildren
+  '/carrossel': typeof AuthenticatedCarrosselRoute
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/sellers': typeof AuthenticatedSellersRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/applications': typeof AuthenticatedApplicationsRouteWithChildren
+  '/_authenticated/carrossel': typeof AuthenticatedCarrosselRoute
   '/_authenticated/cars': typeof AuthenticatedCarsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/reset-password'
     | '/applications'
+    | '/carrossel'
     | '/cars'
     | '/dashboard'
     | '/sellers'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/reset-password'
     | '/applications'
+    | '/carrossel'
     | '/cars'
     | '/dashboard'
     | '/sellers'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/reset-password'
     | '/_authenticated/applications'
+    | '/_authenticated/carrossel'
     | '/_authenticated/cars'
     | '/_authenticated/dashboard'
     | '/_authenticated/sellers'
@@ -319,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCarsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/carrossel': {
+      id: '/_authenticated/carrossel'
+      path: '/carrossel'
+      fullPath: '/carrossel'
+      preLoaderRoute: typeof AuthenticatedCarrosselRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/applications': {
       id: '/_authenticated/applications'
       path: '/applications'
@@ -405,6 +424,7 @@ const AuthenticatedCarsRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRouteWithChildren
+  AuthenticatedCarrosselRoute: typeof AuthenticatedCarrosselRoute
   AuthenticatedCarsRoute: typeof AuthenticatedCarsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
@@ -413,6 +433,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedApplicationsRoute: AuthenticatedApplicationsRouteWithChildren,
+  AuthenticatedCarrosselRoute: AuthenticatedCarrosselRoute,
   AuthenticatedCarsRoute: AuthenticatedCarsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
