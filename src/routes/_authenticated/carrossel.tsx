@@ -38,9 +38,6 @@ const PERSONAS = [
 ];
 const ESTILOS = ["Emocional", "Direto e vendedor", "Educativo", "Descontraído", "Aspiracional"];
 
-function unsplashUrl(q: string) {
-  return `https://source.unsplash.com/1080x1350/?${encodeURIComponent(q)}`;
-}
 
 function CarrosselPage() {
   const gen = useServerFn(generateCarrossel);
