@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { generateCarrossel, type Slide } from "@/lib/carrossel.functions";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,9 +39,29 @@ const PERSONAS = [
 ];
 const ESTILOS = ["Emocional", "Direto e vendedor", "Educativo", "Descontraído", "Aspiracional"];
 
+const unsplashFallback = (query: string) =>
+  `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(query)},car,automotive`;
+
+function renderTextoComDestaque(texto: string, accentColor: string) {
+  const parts = texto.split(/\[destaque\]|\[\/destaque\]/);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} style={{ color: accentColor, fontWeight: 800 }}>
+        {part}
+      </span>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+}
 
 function CarrosselPage() {
   const gen = useServerFn(generateCarrossel);
+  const { profile } = useAuth();
+  const accentColor =
+    ((profile as unknown as { accent_color?: string | null } | null)?.accent_color as string | undefined) ||
+    "#25D366";
+
   const [form, setForm] = useState({
     tema: TEMAS[0],
     persona: PERSONAS[0],
@@ -49,6 +70,17 @@ function CarrosselPage() {
     loja: "",
     whatsapp: "",
   });
+
+  useEffect(() => {
+    if (profile) {
+      setForm((f) => ({
+        ...f,
+        loja: f.loja || profile.store_name || "",
+        whatsapp: f.whatsapp || profile.whatsapp || "",
+      }));
+    }
+  }, [profile]);
+
   const [slides, setSlides] = useState<Slide[]>([]);
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -179,7 +211,7 @@ function CarrosselPage() {
               style={{ width: 360, height: 450 }}
             >
               <div style={{ transform: "scale(0.3333)", transformOrigin: "top left", width: 1080, height: 1350 }}>
-                <SlideCard slide={slides[current]} loja={form.loja} whatsapp={form.whatsapp} />
+                <SlideCard slide={slides[current]} loja={form.loja} whatsapp={form.whatsapp} accentColor={accentColor} />
               </div>
             </div>
             <Button variant="outline" size="icon" onClick={() => setCurrent((c) => Math.min(slides.length - 1, c + 1))} disabled={current === slides.length - 1}>
@@ -191,7 +223,7 @@ function CarrosselPage() {
           <div style={{ position: "fixed", left: -99999, top: 0 }} aria-hidden>
             {slides.map((s, i) => (
               <div key={i} ref={(el) => { slideRefs.current[i] = el; }}>
-                <SlideCard slide={s} loja={form.loja} whatsapp={form.whatsapp} />
+                <SlideCard slide={s} loja={form.loja} whatsapp={form.whatsapp} accentColor={accentColor} />
               </div>
             ))}
           </div>
@@ -201,7 +233,28 @@ function CarrosselPage() {
   );
 }
 
-function SlideCard({ slide, loja, whatsapp }: { slide: Slide; loja: string; whatsapp: string }) {
+function WhatsAppIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="#25D366" width={size} height={size} style={{ flexShrink: 0 }}>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.935 1.393 5.61L0 24l6.545-1.368A11.942 11.942 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.587-.467-5.107-1.29L3 21.646l.943-3.788A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+    </svg>
+  );
+}
+
+function SlideCard({
+  slide,
+  loja,
+  whatsapp,
+  accentColor,
+}: {
+  slide: Slide;
+  loja: string;
+  whatsapp: string;
+  accentColor: string;
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+
   return (
     <div
       style={{
@@ -211,22 +264,64 @@ function SlideCard({ slide, loja, whatsapp }: { slide: Slide; loja: string; what
         overflow: "hidden",
         fontFamily: "Inter, system-ui, sans-serif",
         color: "#fff",
-        background: "#111",
+        background: `linear-gradient(135deg, ${accentColor} 0%, #111 100%)`,
       }}
     >
-      <img
-        src={slide.imagemUrl}
-        crossOrigin="anonymous"
-        alt=""
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-      />
+      {/* Camada base: ícone de carro grande (aparece se imagem falhar) */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.85) 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: 0.15,
+        }}
+      >
+        <svg viewBox="0 0 24 24" fill="#fff" width={600} height={600}>
+          <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-5h14v5zM7.5 16c.83 0 1.5-.67 1.5-1.5S8.33 13 7.5 13 6 13.67 6 14.5 6.67 16 7.5 16zm9 0c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z" />
+        </svg>
+      </div>
+
+      {/* Camada imagem */}
+      {!imgFailed && (
+        <img
+          src={unsplashFallback(slide.imageSearchQuery)}
+          crossOrigin="anonymous"
+          alt=""
+          onError={() => setImgFailed(true)}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      )}
+
+      {/* Overlay escuro */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.88) 100%)",
         }}
       />
+
+      {/* Faixa accent no topo */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 12,
+          background: accentColor,
+        }}
+      />
+
+      {/* Conteúdo */}
       <div
         style={{
           position: "absolute",
@@ -237,19 +332,42 @@ function SlideCard({ slide, loja, whatsapp }: { slide: Slide; loja: string; what
           justifyContent: "flex-end",
         }}
       >
-        <div style={{ fontSize: 28, opacity: 0.85, marginBottom: 24, letterSpacing: 2 }}>
+        <div style={{ fontSize: 28, opacity: 0.85, marginBottom: 24, letterSpacing: 2, color: accentColor, fontWeight: 700 }}>
           {String(slide.numero).padStart(2, "0")} / 08
         </div>
-        <h2 style={{ fontSize: 96, fontWeight: 900, lineHeight: 1.05, textTransform: "uppercase", margin: 0, letterSpacing: -2 }}>
+        <h2
+          style={{
+            fontSize: 96,
+            fontWeight: 900,
+            lineHeight: 1.05,
+            textTransform: "uppercase",
+            margin: 0,
+            letterSpacing: -2,
+          }}
+        >
           {slide.titulo}
         </h2>
         <p style={{ fontSize: 44, lineHeight: 1.3, marginTop: 32, opacity: 0.95, fontWeight: 500 }}>
-          {slide.corpo}
+          {renderTextoComDestaque(slide.corpo, accentColor)}
         </p>
         {(loja || whatsapp) && (
-          <div style={{ marginTop: 48, display: "flex", justifyContent: "space-between", fontSize: 28, opacity: 0.85 }}>
-            <span>{loja}</span>
-            <span>{whatsapp}</span>
+          <div
+            style={{
+              marginTop: 48,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 28,
+              opacity: 0.9,
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>{loja}</span>
+            {whatsapp && (
+              <span style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <WhatsAppIcon size={32} />
+                <span>{whatsapp}</span>
+              </span>
+            )}
           </div>
         )}
       </div>
