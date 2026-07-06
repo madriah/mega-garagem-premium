@@ -38,9 +38,6 @@ const PERSONAS = [
 ];
 const ESTILOS = ["Emocional", "Direto e vendedor", "Educativo", "Descontraído", "Aspiracional"];
 
-function unsplashUrl(q: string) {
-  return `https://source.unsplash.com/1080x1350/?${encodeURIComponent(q)}`;
-}
 
 function CarrosselPage() {
   const gen = useServerFn(generateCarrossel);
@@ -218,7 +215,7 @@ function SlideCard({ slide, loja, whatsapp }: { slide: Slide; loja: string; what
       }}
     >
       <img
-        src={unsplashUrl(slide.imagemQuery)}
+        src={slide.imagemUrl}
         crossOrigin="anonymous"
         alt=""
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
