@@ -218,7 +218,7 @@ function SlideCard({ slide, loja, whatsapp }: { slide: Slide; loja: string; what
       }}
     >
       <img
-        src={unsplashUrl(slide.imagemQuery)}
+        src={slide.imagemUrl}
         crossOrigin="anonymous"
         alt=""
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
