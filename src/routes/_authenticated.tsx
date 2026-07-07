@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
-import { Car, PlusCircle, BarChart3, Settings, LogOut, Store, Loader2, FileText, Users, Sparkles } from "lucide-react";
+import { Car, PlusCircle, BarChart3, Settings, LogOut, Store, Loader2, FileText, Users, Sparkles, Film } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthedLayout });
@@ -16,8 +16,10 @@ const nav = [
   { to: "/applications", label: "Fichas", icon: FileText },
   { to: "/sellers", label: "Vendedores", icon: Users },
   { to: "/carrossel", label: "Carrossel IA", icon: Sparkles },
+  { to: "/reels", label: "Reels IA", icon: Film },
   { to: "/settings", label: "Configurações", icon: Settings },
 ] as const;
+
 
 function AuthedLayout() {
   const { user, profile, loading } = useAuth();

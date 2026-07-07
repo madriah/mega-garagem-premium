@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSellersRouteImport } from './routes/_authenticated/sellers'
+import { Route as AuthenticatedReelsRouteImport } from './routes/_authenticated/reels'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCarsRouteImport } from './routes/_authenticated/cars'
 import { Route as AuthenticatedCarrosselRouteImport } from './routes/_authenticated/carrossel'
@@ -66,6 +67,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedSellersRoute = AuthenticatedSellersRouteImport.update({
   id: '/sellers',
   path: '/sellers',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedReelsRoute = AuthenticatedReelsRouteImport.update({
+  id: '/reels',
+  path: '/reels',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/carrossel': typeof AuthenticatedCarrosselRoute
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/reels': typeof AuthenticatedReelsRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/loja/$slug': typeof LojaSlugRouteWithChildren
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/carrossel': typeof AuthenticatedCarrosselRoute
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/reels': typeof AuthenticatedReelsRoute
   '/sellers': typeof AuthenticatedSellersRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/applications/$id': typeof AuthenticatedApplicationsIdRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/_authenticated/carrossel': typeof AuthenticatedCarrosselRoute
   '/_authenticated/cars': typeof AuthenticatedCarsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/reels': typeof AuthenticatedReelsRoute
   '/_authenticated/sellers': typeof AuthenticatedSellersRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/loja/$slug': typeof LojaSlugRouteWithChildren
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/carrossel'
     | '/cars'
     | '/dashboard'
+    | '/reels'
     | '/sellers'
     | '/settings'
     | '/loja/$slug'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/carrossel'
     | '/cars'
     | '/dashboard'
+    | '/reels'
     | '/sellers'
     | '/settings'
     | '/applications/$id'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/carrossel'
     | '/_authenticated/cars'
     | '/_authenticated/dashboard'
+    | '/_authenticated/reels'
     | '/_authenticated/sellers'
     | '/_authenticated/settings'
     | '/loja/$slug'
@@ -315,6 +327,13 @@ declare module '@tanstack/react-router' {
       path: '/sellers'
       fullPath: '/sellers'
       preLoaderRoute: typeof AuthenticatedSellersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/reels': {
+      id: '/_authenticated/reels'
+      path: '/reels'
+      fullPath: '/reels'
+      preLoaderRoute: typeof AuthenticatedReelsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
@@ -427,6 +446,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCarrosselRoute: typeof AuthenticatedCarrosselRoute
   AuthenticatedCarsRoute: typeof AuthenticatedCarsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedReelsRoute: typeof AuthenticatedReelsRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
@@ -436,6 +456,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCarrosselRoute: AuthenticatedCarrosselRoute,
   AuthenticatedCarsRoute: AuthenticatedCarsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedReelsRoute: AuthenticatedReelsRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
