@@ -9,7 +9,11 @@ type Profile = {
   store_slug: string;
   whatsapp: string;
   email: string;
+  tier?: "basico" | "pro" | "elite" | null;
+  accent_color?: string | null;
+  logo_url?: string | null;
 };
+
 
 type Ctx = {
   user: User | null;
