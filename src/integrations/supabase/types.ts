@@ -282,6 +282,7 @@ export type Database = {
           store_slug: string
           store_template: string
           tagline: string | null
+          tier: string
           updated_at: string
           whatsapp: string
         }
@@ -298,6 +299,7 @@ export type Database = {
           store_slug: string
           store_template?: string
           tagline?: string | null
+          tier?: string
           updated_at?: string
           whatsapp: string
         }
@@ -314,10 +316,96 @@ export type Database = {
           store_slug?: string
           store_template?: string
           tagline?: string | null
+          tier?: string
           updated_at?: string
           whatsapp?: string
         }
         Relationships: []
+      }
+      reels_projects: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          tier: string
+          updated_at: string
+          user_id: string
+          vehicle_id: string | null
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id: string
+          vehicle_id?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reels_projects_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reels_scripts: {
+        Row: {
+          bullets: Json
+          created_at: string
+          cta_text: string
+          generated_by: string
+          hook_category: string
+          hook_text: string
+          id: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          bullets?: Json
+          created_at?: string
+          cta_text: string
+          generated_by?: string
+          hook_category: string
+          hook_text: string
+          id?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          bullets?: Json
+          created_at?: string
+          cta_text?: string
+          generated_by?: string
+          hook_category?: string
+          hook_text?: string
+          id?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reels_scripts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "reels_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sellers: {
         Row: {
