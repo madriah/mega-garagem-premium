@@ -324,8 +324,13 @@ export type Database = {
       }
       reels_projects: {
         Row: {
+          agency_mode: string | null
+          campaign_objective: string | null
           created_at: string
+          format: string
           id: string
+          music_track_id: string | null
+          seed: number | null
           status: string
           tier: string
           updated_at: string
@@ -334,8 +339,13 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          agency_mode?: string | null
+          campaign_objective?: string | null
           created_at?: string
+          format?: string
           id?: string
+          music_track_id?: string | null
+          seed?: number | null
           status?: string
           tier?: string
           updated_at?: string
@@ -344,8 +354,13 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          agency_mode?: string | null
+          campaign_objective?: string | null
           created_at?: string
+          format?: string
           id?: string
+          music_track_id?: string | null
+          seed?: number | null
           status?: string
           tier?: string
           updated_at?: string
@@ -373,6 +388,7 @@ export type Database = {
           hook_text: string
           id: string
           project_id: string
+          storyboard_json: Json | null
           user_id: string
         }
         Insert: {
@@ -384,6 +400,7 @@ export type Database = {
           hook_text: string
           id?: string
           project_id: string
+          storyboard_json?: Json | null
           user_id: string
         }
         Update: {
@@ -395,6 +412,7 @@ export type Database = {
           hook_text?: string
           id?: string
           project_id?: string
+          storyboard_json?: Json | null
           user_id?: string
         }
         Relationships: [
