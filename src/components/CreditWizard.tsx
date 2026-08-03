@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 import { submitApplication, attachApplicationDocument } from "@/lib/credit.functions";
 import {
   ApplicationSchema,
@@ -209,15 +208,24 @@ export function CreditWizard({ profile, vehicle, seller }: Props) {
 
       for (const [type, file] of Object.entries(docs)) {
         if (!file) continue;
-        const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
-        const path = `${result.id}/${type}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("credit-docs").upload(path, file, { upsert: true });
-        if (!upErr) {
-          try {
-            await attachDoc({ data: { application_id: result.id, doc_type: type, storage_path: path } });
-          } catch (e) {
-            console.error("attachDoc failed", e);
+        try {
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          let binary = "";
+          for (let offset = 0; offset < bytes.length; offset += 32_768) {
+            binary += String.fromCharCode(...bytes.subarray(offset, offset + 32_768));
           }
+          await attachDoc({
+            data: {
+              application_id: result.id,
+              doc_type: type,
+              file_name: file.name,
+              mime_type: file.type || "application/octet-stream",
+              file_base64: btoa(binary),
+            },
+          });
+        } catch (error) {
+          console.error("attachDoc failed", error);
+          throw new Error(`Não foi possível enviar o documento ${type}.`);
         }
       }
 

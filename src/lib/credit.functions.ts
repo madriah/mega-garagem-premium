@@ -3,20 +3,16 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { ApplicationSchema } from "./credit-schema";
 
-const AttachDocSchema = z.object({
-  application_id: z.string().uuid(),
-  doc_type: z.string().min(1).max(50),
-  storage_path: z.string().min(1).max(300),
-});
-
 export const attachApplicationDocument = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => AttachDocSchema.parse(d))
+  .inputValidator((d: unknown) => z.object({
+    application_id: z.string().uuid(),
+    doc_type: z.string().min(1).max(50),
+    file_name: z.string().min(1).max(180),
+    mime_type: z.string().min(1).max(100),
+    file_base64: z.string().min(1).max(14_000_000),
+  }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    // Enforce storage path is scoped to this application id
-    if (!data.storage_path.startsWith(`${data.application_id}/`)) {
-      throw new Error("Invalid storage path");
-    }
     const { data: app } = await supabaseAdmin
       .from("credit_applications")
       .select("id")
@@ -24,12 +20,20 @@ export const attachApplicationDocument = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!app) throw new Error("Ficha não encontrada");
 
+    const safeExtension = data.file_name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+    const storagePath = `${data.application_id}/${data.doc_type}.${safeExtension}`;
+    const binary = Uint8Array.from(atob(data.file_base64), (character) => character.charCodeAt(0));
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from("credit-docs")
+      .upload(storagePath, binary, { contentType: data.mime_type, upsert: true });
+    if (uploadError) throw new Error(uploadError.message);
+
     const { error } = await supabaseAdmin
       .from("credit_application_documents")
       .insert({
         application_id: data.application_id,
         doc_type: data.doc_type,
-        storage_path: data.storage_path,
+        storage_path: storagePath,
       });
     if (error) throw new Error(error.message);
     return { ok: true };
