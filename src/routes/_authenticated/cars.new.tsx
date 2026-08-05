@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { fipe, parseFipeValue, formatBRL, type FipeItem } from "@/lib/fipe";
 import { generateDescription } from "@/lib/ai.functions";
+import { removeBackground } from "@/lib/clipdrop.functions";
+import { compositeShowroom, fileToBase64 } from "@/lib/showroom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +22,7 @@ function NewCar() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const genDesc = useServerFn(generateDescription);
+  const rmBg = useServerFn(removeBackground);
   const [aiLoading, setAiLoading] = useState(false);
 
   const [plate, setPlate] = useState("");
@@ -90,10 +93,29 @@ function NewCar() {
       const photoPaths: string[] = [];
       for (const file of photos) {
         const ext = file.name.split(".").pop();
-        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+        const id = crypto.randomUUID();
+        const path = `${user.id}/${id}.${ext}`;
         const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file, { cacheControl: "3600", upsert: false });
         if (upErr) throw upErr;
-        photoPaths.push(path);
+
+        // Versão showroom: fundo removido (Clipdrop) + fundo neutro via canvas.
+        // Se qualquer etapa falhar, mantemos a foto original como fallback.
+        let finalPath = path;
+        try {
+          const { pngBase64 } = await rmBg({
+            data: { imageBase64: await fileToBase64(file), mimeType: file.type || "image/jpeg" },
+          });
+          const blob = await compositeShowroom(pngBase64);
+          const showroomPath = `${user.id}/${id}-showroom.jpg`;
+          const { error: srErr } = await supabase.storage
+            .from("vehicle-photos")
+            .upload(showroomPath, blob, { cacheControl: "3600", upsert: false, contentType: "image/jpeg" });
+          if (srErr) throw srErr;
+          finalPath = showroomPath;
+        } catch {
+          toast.message("Fundo showroom indisponível — usando a foto original.");
+        }
+        photoPaths.push(finalPath);
       }
 
       const { error } = await supabase.from("vehicles").insert({
