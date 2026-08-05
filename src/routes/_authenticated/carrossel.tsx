@@ -39,8 +39,29 @@ const PERSONAS = [
 ];
 const ESTILOS = ["Emocional", "Direto e vendedor", "Educativo", "Descontraído", "Aspiracional"];
 
-const unsplashFallback = (query: string) =>
-  `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(query)},car,automotive`;
+function useUnsplashPhoto(query: string) {
+  const search = useServerFn(searchUnsplashPhoto);
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setUrl(null);
+    if (!query) return;
+    search({ data: { query } })
+      .then((r) => {
+        if (active) setUrl(r.url);
+      })
+      .catch(() => {
+        if (active) setUrl(null);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  return url;
+}
 
 function renderTextoComDestaque(texto: string, accentColor: string) {
   const parts = texto.split(/\[destaque\]|\[\/destaque\]/);
