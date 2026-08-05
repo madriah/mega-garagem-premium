@@ -275,6 +275,7 @@ function SlideCard({
   accentColor: string;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
+  const photoUrl = useUnsplashPhoto(slide.imageSearchQuery);
 
   return (
     <div
