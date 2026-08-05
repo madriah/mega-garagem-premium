@@ -306,9 +306,9 @@ function SlideCard({
       </div>
 
       {/* Camada imagem */}
-      {!imgFailed && (
+      {!imgFailed && photoUrl && (
         <img
-          src={unsplashFallback(slide.imageSearchQuery)}
+          src={photoUrl}
           crossOrigin="anonymous"
           alt=""
           onError={() => setImgFailed(true)}
