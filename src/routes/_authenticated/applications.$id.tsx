@@ -175,7 +175,10 @@ function Detail() {
             <Row label="Parcelas" value={String(app.installments || "—")} />
             <Row label="Parcela desejada" value={formatBRL(Number(app.desired_installment_value || 0))} />
             <Row label="Carro na troca" value={app.has_trade_in ? `Sim — ${app.trade_in_description || ""}` : "Não"} />
+            <Row label="Bancos selecionados" value={(app.selected_banks ?? []).length ? (app.selected_banks as string[]).join(", ") : "—"} />
+            <Row label="Obs. do vendedor" value={dash(app.vendor_notes)} />
           </Card>
+
           {Array.isArray(app.references) && app.references.length > 0 && (
             <Card title="Referências">
               {app.references.map((r: any, i: number) => (
