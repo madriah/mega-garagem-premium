@@ -112,7 +112,9 @@ function List() {
                   <span className="hidden items-center gap-1 text-xs text-muted-foreground md:inline-flex"><FileBadge className="size-3.5" />{docsCount}</span>
                 )}
                 <Badge variant="outline" className={STATUS_COLORS[r.status]}>{STATUS_LABELS[r.status] ?? r.status}</Badge>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                <span className="hidden shrink-0 items-center gap-1 text-xs font-medium text-primary lg:inline-flex">Ver ficha completa <ChevronRight className="size-4" /></span>
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground lg:hidden" />
+
               </Link>
             );
           })}
