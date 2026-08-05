@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { fipe, parseFipeValue, formatBRL, type FipeItem } from "@/lib/fipe";
 import { generateDescription } from "@/lib/ai.functions";
+import { removeBackground } from "@/lib/clipdrop.functions";
+import { compositeShowroom, fileToBase64 } from "@/lib/showroom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
