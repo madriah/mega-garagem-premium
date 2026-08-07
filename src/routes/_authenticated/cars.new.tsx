@@ -292,11 +292,19 @@ function NewCar() {
               ))}
             </div>
           )}
+          {processing && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">
+              <Loader2 className="size-4 animate-spin" />
+              Processando foto... ({processing.index}/{processing.total}) aplicando fundo de showroom
+            </div>
+          )}
         </section>
 
         <Button type="submit" size="lg" className="w-full shadow-glow" disabled={saving}>
-          {saving && <Loader2 className="size-4 animate-spin" />} Cadastrar veículo
+          {saving && <Loader2 className="size-4 animate-spin" />}
+          {processing ? "Processando foto..." : "Cadastrar veículo"}
         </Button>
+
       </form>
     </div>
   );
