@@ -534,6 +534,7 @@ export type Database = {
           is_active: boolean
           km: number
           model: string | null
+          original_photos: string[]
           photos: string[]
           plate: string
           sale_price: number
@@ -552,6 +553,7 @@ export type Database = {
           is_active?: boolean
           km?: number
           model?: string | null
+          original_photos?: string[]
           photos?: string[]
           plate: string
           sale_price: number
@@ -570,6 +572,7 @@ export type Database = {
           is_active?: boolean
           km?: number
           model?: string | null
+          original_photos?: string[]
           photos?: string[]
           plate?: string
           sale_price?: number
