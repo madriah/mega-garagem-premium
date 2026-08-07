@@ -6,8 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { fipe, parseFipeValue, formatBRL, type FipeItem } from "@/lib/fipe";
 import { generateDescription } from "@/lib/ai.functions";
-import { removeBackground } from "@/lib/clipdrop.functions";
-import { compositeShowroom, fileToBase64 } from "@/lib/showroom";
+import { editVehiclePhoto } from "@/lib/photoroom.functions";
+import { fileToBase64 } from "@/lib/file-base64";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,8 +22,12 @@ function NewCar() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const genDesc = useServerFn(generateDescription);
-  const rmBg = useServerFn(removeBackground);
+  const editPhoto = useServerFn(editVehiclePhoto);
   const [aiLoading, setAiLoading] = useState(false);
+  const [processing, setProcessing] = useState<{ index: number; total: number } | null>(null);
+
+
+
 
   const [plate, setPlate] = useState("");
   const [brandCode, setBrandCode] = useState("");
@@ -91,29 +95,48 @@ function NewCar() {
     try {
       // Upload photos — store storage paths (signed URLs are generated on read)
       const photoPaths: string[] = [];
-      for (const file of photos) {
+      const originalPaths: string[] = [];
+      for (let i = 0; i < photos.length; i++) {
+        const file = photos[i]!;
         const ext = file.name.split(".").pop();
         const id = crypto.randomUUID();
         const path = `${user.id}/${id}.${ext}`;
         const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file, { cacheControl: "3600", upsert: false });
         if (upErr) throw upErr;
+        originalPaths.push(path);
 
-        // Versão showroom: fundo removido (Clipdrop) + fundo neutro via canvas.
-        // Se qualquer etapa falhar, mantemos a foto original como fallback.
+        // Photoroom: fundo de showroom automático. Nunca bloqueia o cadastro —
+        // qualquer falha cai no fallback da foto original.
         let finalPath = path;
+        setProcessing({ index: i + 1, total: photos.length });
         try {
-          const { pngBase64 } = await rmBg({
+          const result = await editPhoto({
             data: { imageBase64: await fileToBase64(file), mimeType: file.type || "image/jpeg" },
           });
-          const blob = await compositeShowroom(pngBase64);
-          const showroomPath = `${user.id}/${id}-showroom.jpg`;
-          const { error: srErr } = await supabase.storage
-            .from("vehicle-photos")
-            .upload(showroomPath, blob, { cacheControl: "3600", upsert: false, contentType: "image/jpeg" });
-          if (srErr) throw srErr;
-          finalPath = showroomPath;
-        } catch {
-          toast.message("Fundo showroom indisponível — usando a foto original.");
+          if (result.ok) {
+            const bin = atob(result.imageBase64);
+            const bytes = new Uint8Array(bin.length);
+            for (let b = 0; b < bin.length; b++) bytes[b] = bin.charCodeAt(b);
+            const suffix = result.preview ? "-preview" : "-showroom";
+            const editedPath = `${user.id}/${id}${suffix}.png`;
+            const { error: edErr } = await supabase.storage
+              .from("vehicle-photos")
+              .upload(editedPath, new Blob([bytes], { type: "image/png" }), {
+                cacheControl: "3600",
+                upsert: false,
+                contentType: "image/png",
+              });
+            if (edErr) throw edErr;
+            finalPath = editedPath;
+          } else {
+            console.warn("[photoroom] usando foto original:", result.reason);
+            toast.message("Edição de foto indisponível — usando a foto original.");
+          }
+        } catch (e) {
+          console.warn("[photoroom] falha no processamento:", e);
+          toast.message("Edição de foto indisponível — usando a foto original.");
+        } finally {
+          setProcessing(null);
         }
         photoPaths.push(finalPath);
       }
@@ -131,6 +154,7 @@ function NewCar() {
         color: color || null,
         description: description || null,
         photos: photoPaths,
+        original_photos: originalPaths,
       });
       if (error) throw error;
       toast.success("Veículo cadastrado!");
@@ -268,11 +292,19 @@ function NewCar() {
               ))}
             </div>
           )}
+          {processing && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">
+              <Loader2 className="size-4 animate-spin" />
+              Processando foto... ({processing.index}/{processing.total}) aplicando fundo de showroom
+            </div>
+          )}
         </section>
 
         <Button type="submit" size="lg" className="w-full shadow-glow" disabled={saving}>
-          {saving && <Loader2 className="size-4 animate-spin" />} Cadastrar veículo
+          {saving && <Loader2 className="size-4 animate-spin" />}
+          {processing ? "Processando foto..." : "Cadastrar veículo"}
         </Button>
+
       </form>
     </div>
   );
