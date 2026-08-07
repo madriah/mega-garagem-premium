@@ -21,8 +21,11 @@ function NewCar() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const genDesc = useServerFn(generateDescription);
-  const rmBg = useServerFn(removeBackground);
+  const editPhoto = useServerFn(editVehiclePhoto);
   const [aiLoading, setAiLoading] = useState(false);
+  const [processing, setProcessing] = useState<{ index: number; total: number } | null>(null);
+
+
 
 
   const [plate, setPlate] = useState("");
