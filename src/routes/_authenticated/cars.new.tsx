@@ -24,6 +24,7 @@ function NewCar() {
   const rmBg = useServerFn(removeBackground);
   const [aiLoading, setAiLoading] = useState(false);
 
+
   const [plate, setPlate] = useState("");
   const [brandCode, setBrandCode] = useState("");
   const [modelCode, setModelCode] = useState("");
