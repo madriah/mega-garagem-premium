@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { fipe, parseFipeValue, formatBRL, type FipeItem } from "@/lib/fipe";
 import { generateDescription } from "@/lib/ai.functions";
 import { editVehiclePhoto } from "@/lib/photoroom.functions";
+import { fileToBase64 } from "@/lib/file-base64";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
