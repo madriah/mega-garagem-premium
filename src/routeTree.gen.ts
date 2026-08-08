@@ -21,9 +21,9 @@ import { Route as AuthenticatedReelsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCarsRouteImport } from './routes/_authenticated/cars'
 import { Route as AuthenticatedCarrosselRouteImport } from './routes/_authenticated/carrossel'
-import { Route as AuthenticatedApplicationsRouteImport } from './routes/_authenticated/applications'
 import { Route as LojaSlugIndexRouteImport } from './routes/loja.$slug.index'
 import { Route as AuthenticatedFichasIndexRouteImport } from './routes/_authenticated/fichas.index'
+import { Route as AuthenticatedApplicationsIndexRouteImport } from './routes/_authenticated/applications.index'
 import { Route as LojaSlugFichaEnviadaRouteImport } from './routes/loja.$slug.ficha-enviada'
 import { Route as LojaSlugVehicleIdRouteImport } from './routes/loja.$slug.$vehicleId'
 import { Route as AuthenticatedFichasIdRouteImport } from './routes/_authenticated/fichas.$id'
@@ -91,12 +91,6 @@ const AuthenticatedCarrosselRoute = AuthenticatedCarrosselRouteImport.update({
   path: '/carrossel',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedApplicationsRoute =
-  AuthenticatedApplicationsRouteImport.update({
-    id: '/applications',
-    path: '/applications',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const LojaSlugIndexRoute = LojaSlugIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -106,6 +100,12 @@ const AuthenticatedFichasIndexRoute =
   AuthenticatedFichasIndexRouteImport.update({
     id: '/fichas/',
     path: '/fichas/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedApplicationsIndexRoute =
+  AuthenticatedApplicationsIndexRouteImport.update({
+    id: '/applications/',
+    path: '/applications/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const LojaSlugFichaEnviadaRoute = LojaSlugFichaEnviadaRouteImport.update({
@@ -130,9 +130,9 @@ const AuthenticatedCarsNewRoute = AuthenticatedCarsNewRouteImport.update({
 } as any)
 const AuthenticatedApplicationsIdRoute =
   AuthenticatedApplicationsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedApplicationsRoute,
+    id: '/applications/$id',
+    path: '/applications/$id',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const LojaSlugFichaIndexRoute = LojaSlugFichaIndexRouteImport.update({
   id: '/ficha/',
@@ -150,7 +150,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/applications': typeof AuthenticatedApplicationsRouteWithChildren
   '/carrossel': typeof AuthenticatedCarrosselRoute
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -163,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/fichas/$id': typeof AuthenticatedFichasIdRoute
   '/loja/$slug/$vehicleId': typeof LojaSlugVehicleIdRoute
   '/loja/$slug/ficha-enviada': typeof LojaSlugFichaEnviadaRoute
+  '/applications/': typeof AuthenticatedApplicationsIndexRoute
   '/fichas/': typeof AuthenticatedFichasIndexRoute
   '/loja/$slug/': typeof LojaSlugIndexRoute
   '/loja/$slug/ficha/$vehicleId': typeof LojaSlugFichaVehicleIdRoute
@@ -173,7 +173,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/applications': typeof AuthenticatedApplicationsRouteWithChildren
   '/carrossel': typeof AuthenticatedCarrosselRoute
   '/cars': typeof AuthenticatedCarsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -185,6 +184,7 @@ export interface FileRoutesByTo {
   '/fichas/$id': typeof AuthenticatedFichasIdRoute
   '/loja/$slug/$vehicleId': typeof LojaSlugVehicleIdRoute
   '/loja/$slug/ficha-enviada': typeof LojaSlugFichaEnviadaRoute
+  '/applications': typeof AuthenticatedApplicationsIndexRoute
   '/fichas': typeof AuthenticatedFichasIndexRoute
   '/loja/$slug': typeof LojaSlugIndexRoute
   '/loja/$slug/ficha/$vehicleId': typeof LojaSlugFichaVehicleIdRoute
@@ -197,7 +197,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/applications': typeof AuthenticatedApplicationsRouteWithChildren
   '/_authenticated/carrossel': typeof AuthenticatedCarrosselRoute
   '/_authenticated/cars': typeof AuthenticatedCarsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -210,6 +209,7 @@ export interface FileRoutesById {
   '/_authenticated/fichas/$id': typeof AuthenticatedFichasIdRoute
   '/loja/$slug/$vehicleId': typeof LojaSlugVehicleIdRoute
   '/loja/$slug/ficha-enviada': typeof LojaSlugFichaEnviadaRoute
+  '/_authenticated/applications/': typeof AuthenticatedApplicationsIndexRoute
   '/_authenticated/fichas/': typeof AuthenticatedFichasIndexRoute
   '/loja/$slug/': typeof LojaSlugIndexRoute
   '/loja/$slug/ficha/$vehicleId': typeof LojaSlugFichaVehicleIdRoute
@@ -222,7 +222,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/reset-password'
-    | '/applications'
     | '/carrossel'
     | '/cars'
     | '/dashboard'
@@ -235,6 +234,7 @@ export interface FileRouteTypes {
     | '/fichas/$id'
     | '/loja/$slug/$vehicleId'
     | '/loja/$slug/ficha-enviada'
+    | '/applications/'
     | '/fichas/'
     | '/loja/$slug/'
     | '/loja/$slug/ficha/$vehicleId'
@@ -245,7 +245,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/reset-password'
-    | '/applications'
     | '/carrossel'
     | '/cars'
     | '/dashboard'
@@ -257,6 +256,7 @@ export interface FileRouteTypes {
     | '/fichas/$id'
     | '/loja/$slug/$vehicleId'
     | '/loja/$slug/ficha-enviada'
+    | '/applications'
     | '/fichas'
     | '/loja/$slug'
     | '/loja/$slug/ficha/$vehicleId'
@@ -268,7 +268,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/forgot-password'
     | '/reset-password'
-    | '/_authenticated/applications'
     | '/_authenticated/carrossel'
     | '/_authenticated/cars'
     | '/_authenticated/dashboard'
@@ -281,6 +280,7 @@ export interface FileRouteTypes {
     | '/_authenticated/fichas/$id'
     | '/loja/$slug/$vehicleId'
     | '/loja/$slug/ficha-enviada'
+    | '/_authenticated/applications/'
     | '/_authenticated/fichas/'
     | '/loja/$slug/'
     | '/loja/$slug/ficha/$vehicleId'
@@ -382,13 +382,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCarrosselRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/applications': {
-      id: '/_authenticated/applications'
-      path: '/applications'
-      fullPath: '/applications'
-      preLoaderRoute: typeof AuthenticatedApplicationsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/loja/$slug/': {
       id: '/loja/$slug/'
       path: '/'
@@ -401,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/fichas'
       fullPath: '/fichas/'
       preLoaderRoute: typeof AuthenticatedFichasIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/applications/': {
+      id: '/_authenticated/applications/'
+      path: '/applications'
+      fullPath: '/applications/'
+      preLoaderRoute: typeof AuthenticatedApplicationsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/loja/$slug/ficha-enviada': {
@@ -433,10 +433,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/applications/$id': {
       id: '/_authenticated/applications/$id'
-      path: '/$id'
+      path: '/applications/$id'
       fullPath: '/applications/$id'
       preLoaderRoute: typeof AuthenticatedApplicationsIdRouteImport
-      parentRoute: typeof AuthenticatedApplicationsRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/loja/$slug/ficha/': {
       id: '/loja/$slug/ficha/'
@@ -455,20 +455,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedApplicationsRouteChildren {
-  AuthenticatedApplicationsIdRoute: typeof AuthenticatedApplicationsIdRoute
-}
-
-const AuthenticatedApplicationsRouteChildren: AuthenticatedApplicationsRouteChildren =
-  {
-    AuthenticatedApplicationsIdRoute: AuthenticatedApplicationsIdRoute,
-  }
-
-const AuthenticatedApplicationsRouteWithChildren =
-  AuthenticatedApplicationsRoute._addFileChildren(
-    AuthenticatedApplicationsRouteChildren,
-  )
-
 interface AuthenticatedCarsRouteChildren {
   AuthenticatedCarsNewRoute: typeof AuthenticatedCarsNewRoute
 }
@@ -481,26 +467,28 @@ const AuthenticatedCarsRouteWithChildren =
   AuthenticatedCarsRoute._addFileChildren(AuthenticatedCarsRouteChildren)
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedApplicationsRoute: typeof AuthenticatedApplicationsRouteWithChildren
   AuthenticatedCarrosselRoute: typeof AuthenticatedCarrosselRoute
   AuthenticatedCarsRoute: typeof AuthenticatedCarsRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedReelsRoute: typeof AuthenticatedReelsRoute
   AuthenticatedSellersRoute: typeof AuthenticatedSellersRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedApplicationsIdRoute: typeof AuthenticatedApplicationsIdRoute
   AuthenticatedFichasIdRoute: typeof AuthenticatedFichasIdRoute
+  AuthenticatedApplicationsIndexRoute: typeof AuthenticatedApplicationsIndexRoute
   AuthenticatedFichasIndexRoute: typeof AuthenticatedFichasIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedApplicationsRoute: AuthenticatedApplicationsRouteWithChildren,
   AuthenticatedCarrosselRoute: AuthenticatedCarrosselRoute,
   AuthenticatedCarsRoute: AuthenticatedCarsRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedReelsRoute: AuthenticatedReelsRoute,
   AuthenticatedSellersRoute: AuthenticatedSellersRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedApplicationsIdRoute: AuthenticatedApplicationsIdRoute,
   AuthenticatedFichasIdRoute: AuthenticatedFichasIdRoute,
+  AuthenticatedApplicationsIndexRoute: AuthenticatedApplicationsIndexRoute,
   AuthenticatedFichasIndexRoute: AuthenticatedFichasIndexRoute,
 }
 
@@ -539,3 +527,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
