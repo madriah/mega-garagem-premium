@@ -120,6 +120,7 @@ function List() {
           })}
         </div>
       )}
+      <Outlet />
     </div>
   );
 }
