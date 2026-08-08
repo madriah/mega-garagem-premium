@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +10,7 @@ import { FileText, Search, ChevronRight, FileBadge } from "lucide-react";
 import { formatBRL } from "@/lib/fipe";
 import { STATUS_LABELS, STATUS_COLORS } from "@/lib/credit-schema";
 
-export const Route = createFileRoute("/_authenticated/applications")({ component: List });
+export const Route = createFileRoute("/_authenticated/applications/")({ component: List });
 
 type Row = {
   id: string; protocol: string; full_name: string; cpf: string; phone: string;
@@ -120,7 +120,6 @@ function List() {
           })}
         </div>
       )}
-      <Outlet />
     </div>
   );
 }
