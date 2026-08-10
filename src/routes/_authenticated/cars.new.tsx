@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { PermissionGate } from "@/components/PermissionGate";
 import { fipe, parseFipeValue, formatBRL, type FipeItem } from "@/lib/fipe";
 import { generateDescription } from "@/lib/ai.functions";
 import { editVehiclePhoto } from "@/lib/photoroom.functions";
@@ -19,7 +20,7 @@ import { Loader2, Upload, X, Sparkles, Wand2 } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/cars/new")({ component: NewCar });
 
 function NewCar() {
-  const { user, profile } = useAuth();
+  const { user, profile, ownerId } = useAuth();
   const navigate = useNavigate();
   const genDesc = useServerFn(generateDescription);
   const editPhoto = useServerFn(editVehiclePhoto);
@@ -142,7 +143,7 @@ function NewCar() {
       }
 
       const { error } = await supabase.from("vehicles").insert({
-        user_id: user.id,
+        user_id: ownerId!,
         plate: plate.toUpperCase().trim(),
         brand: fipeData.brand,
         model: fipeData.model,

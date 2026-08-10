@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
 import { PlusCircle, Trash2, Eye } from "lucide-react";
@@ -19,13 +20,13 @@ function CarsLayout() {
 }
 
 function CarsList() {
-  const { user, profile } = useAuth();
+  const { user, profile, ownerId } = useAuth();
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["my-vehicles", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("vehicles").select("*").eq("user_id", user!.id).order("created_at", { ascending: false });
+      const { data } = await supabase.from("vehicles").select("*").eq("user_id", ownerId!).order("created_at", { ascending: false });
       return data ?? [];
     },
   });
