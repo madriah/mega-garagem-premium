@@ -9,20 +9,20 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated")({ component: AuthedLayout });
 
-const nav = [
-  { to: "/dashboard", label: "Dashboard", icon: BarChart3 },
-  { to: "/cars", label: "Meus Carros", icon: Car },
-  { to: "/cars/new", label: "Cadastrar Carro", icon: PlusCircle },
-  { to: "/applications", label: "Fichas", icon: FileText },
-  { to: "/sellers", label: "Vendedores", icon: Users },
-  { to: "/carrossel", label: "Carrossel IA", icon: Sparkles },
-  { to: "/reels", label: "Reels IA", icon: Film },
-  { to: "/settings", label: "Configurações", icon: Settings },
+const allNav = [
+  { to: "/dashboard", label: "Dashboard", icon: BarChart3, perm: null },
+  { to: "/cars", label: "Meus Carros", icon: Car, perm: "cars" },
+  { to: "/cars/new", label: "Cadastrar Carro", icon: PlusCircle, perm: "cars" },
+  { to: "/applications", label: "Fichas", icon: FileText, perm: "fichas" },
+  { to: "/sellers", label: "Vendedores", icon: Users, perm: "owner" },
+  { to: "/carrossel", label: "Carrossel IA", icon: Sparkles, perm: "content" },
+  { to: "/reels", label: "Reels IA", icon: Film, perm: "content" },
+  { to: "/settings", label: "Configurações", icon: Settings, perm: "owner" },
 ] as const;
 
 
 function AuthedLayout() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, isSeller, seller, can } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -37,6 +37,13 @@ function AuthedLayout() {
       </div>
     );
   }
+
+  const nav = allNav.filter((n) => {
+    if (!isSeller) return true;
+    if (n.perm === "owner") return false;
+    if (!n.perm) return true;
+    return can(n.perm as any);
+  });
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -68,6 +75,7 @@ function AuthedLayout() {
             </Link>
             <div className="mb-3 px-1">
               <p className="truncate text-sm font-medium">{profile.store_name}</p>
+              {isSeller && <p className="truncate text-[10px] uppercase tracking-wider text-primary">Vendedor · {seller?.name ?? ""}</p>}
               <p className="truncate text-xs text-muted-foreground">{profile.email}</p>
             </div>
             <Button variant="ghost" size="sm" className="w-full justify-start" onClick={signOut}>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generateReelsScript, type ReelsScript } from "@/lib/reels.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { PermissionGate } from "@/components/PermissionGate";
 import { signPhotos } from "@/lib/photo-url";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,7 +19,7 @@ import { toast } from "sonner";
 import { Download, Film, Loader2, Lock, Sparkles, Video } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/reels")({
-  component: ReelsPage,
+  component: () => (<PermissionGate perm="content"><ReelsPage /></PermissionGate>),
 });
 
 type Vehicle = {

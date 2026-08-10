@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { generateCarrossel, type Slide } from "@/lib/carrossel.functions";
 import { searchUnsplashPhoto } from "@/lib/unsplash.functions";
 import { useAuth } from "@/hooks/use-auth";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,7 @@ import { ChevronLeft, ChevronRight, Download, Loader2, Sparkles } from "lucide-r
 import html2canvas from "html2canvas";
 
 export const Route = createFileRoute("/_authenticated/carrossel")({
-  component: CarrosselPage,
+  component: () => (<PermissionGate perm="content"><CarrosselPage /></PermissionGate>),
 });
 
 const TEMAS = [

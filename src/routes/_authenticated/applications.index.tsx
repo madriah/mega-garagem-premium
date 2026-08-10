@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { FileText, Search, ChevronRight, FileBadge } from "lucide-react";
 import { formatBRL } from "@/lib/fipe";
 import { STATUS_LABELS, STATUS_COLORS } from "@/lib/credit-schema";
 
-export const Route = createFileRoute("/_authenticated/applications/")({ component: List });
+export const Route = createFileRoute("/_authenticated/applications/")({ component: () => (<PermissionGate perm="fichas"><List /></PermissionGate>) });
 
 type Row = {
   id: string; protocol: string; full_name: string; cpf: string; phone: string;
@@ -24,19 +25,21 @@ type Row = {
 const maskCpf = (c: string) => c.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.***.***-$4");
 
 function List() {
-  const { user } = useAuth();
+  const { user, ownerId, isSeller, seller, can } = useAuth();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["applications", user?.id],
-    enabled: !!user,
+    queryKey: ["applications", ownerId, seller?.id],
+    enabled: !!user && !!ownerId,
     queryFn: async (): Promise<Row[]> => {
-      const { data } = await supabase
+      let q = supabase
         .from("credit_applications")
         .select("id,protocol,full_name,cpf,phone,status,monthly_income,down_payment,created_at,read_at,vehicle_id,vehicles(brand,model,year,sale_price),docs:credit_application_documents(count)")
-        .eq("user_id", user!.id)
+        .eq("user_id", ownerId!)
         .order("created_at", { ascending: false });
+      if (isSeller && !can("fichas_all") && seller?.id) q = q.eq("seller_id", seller.id);
+      const { data } = await q;
       return (data ?? []) as any;
     },
   });

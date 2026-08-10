@@ -278,6 +278,8 @@ export type Database = {
           full_name: string
           id: string
           logo_url: string | null
+          owner_id: string | null
+          role: string
           store_name: string
           store_slug: string
           store_template: string
@@ -295,6 +297,8 @@ export type Database = {
           full_name: string
           id: string
           logo_url?: string | null
+          owner_id?: string | null
+          role?: string
           store_name: string
           store_slug: string
           store_template?: string
@@ -312,6 +316,8 @@ export type Database = {
           full_name?: string
           id?: string
           logo_url?: string | null
+          owner_id?: string | null
+          role?: string
           store_name?: string
           store_slug?: string
           store_template?: string
@@ -427,31 +433,37 @@ export type Database = {
       }
       sellers: {
         Row: {
+          auth_user_id: string | null
           created_at: string
           email: string | null
           id: string
           is_active: boolean
           name: string
+          permissions: string[]
           updated_at: string
           user_id: string
           whatsapp: string
         }
         Insert: {
+          auth_user_id?: string | null
           created_at?: string
           email?: string | null
           id?: string
           is_active?: boolean
           name: string
+          permissions?: string[]
           updated_at?: string
           user_id: string
           whatsapp: string
         }
         Update: {
+          auth_user_id?: string | null
           created_at?: string
           email?: string | null
           id?: string
           is_active?: boolean
           name?: string
+          permissions?: string[]
           updated_at?: string
           user_id?: string
           whatsapp?: string
@@ -675,7 +687,9 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      acting_owner: { Args: { _uid: string }; Returns: string }
+      seller_id_of: { Args: { _uid: string }; Returns: string }
+      staff_can: { Args: { _perm: string; _uid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

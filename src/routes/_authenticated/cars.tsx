@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/fipe";
 import { PlusCircle, Trash2, Eye } from "lucide-react";
@@ -10,7 +11,7 @@ import { ArtGenerator } from "@/components/ArtGenerator";
 import { PhotoImg } from "@/components/PhotoImg";
 import { SendFichaButton } from "@/components/SendFichaButton";
 
-export const Route = createFileRoute("/_authenticated/cars")({ component: CarsLayout });
+export const Route = createFileRoute("/_authenticated/cars")({ component: () => (<PermissionGate perm="cars"><CarsLayout /></PermissionGate>) });
 
 function CarsLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -19,13 +20,13 @@ function CarsLayout() {
 }
 
 function CarsList() {
-  const { user, profile } = useAuth();
+  const { user, profile, ownerId } = useAuth();
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["my-vehicles", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("vehicles").select("*").eq("user_id", user!.id).order("created_at", { ascending: false });
+      const { data } = await supabase.from("vehicles").select("*").eq("user_id", ownerId!).order("created_at", { ascending: false });
       return data ?? [];
     },
   });
