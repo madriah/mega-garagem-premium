@@ -11,7 +11,7 @@ import { ArtGenerator } from "@/components/ArtGenerator";
 import { PhotoImg } from "@/components/PhotoImg";
 import { SendFichaButton } from "@/components/SendFichaButton";
 
-export const Route = createFileRoute("/_authenticated/cars")({ component: CarsLayout });
+export const Route = createFileRoute("/_authenticated/cars")({ component: () => (<PermissionGate perm="cars"><CarsLayout /></PermissionGate>) });
 
 function CarsLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });

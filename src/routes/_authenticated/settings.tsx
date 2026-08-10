@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { PermissionGate } from "@/components/PermissionGate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import { toast } from "sonner";
 import { Loader2, ExternalLink, Upload } from "lucide-react";
 import { TEMPLATE_OPTIONS } from "@/components/store-templates";
 
-export const Route = createFileRoute("/_authenticated/settings")({ component: Settings });
+export const Route = createFileRoute("/_authenticated/settings")({ component: () => (<PermissionGate ownerOnly><Settings /></PermissionGate>) });
 
 function Settings() {
   const { profile, refreshProfile } = useAuth();

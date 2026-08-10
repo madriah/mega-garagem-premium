@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Upload, X, Sparkles, Wand2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/cars/new")({ component: NewCar });
+export const Route = createFileRoute("/_authenticated/cars/new")({ component: () => (<PermissionGate perm="cars"><NewCar /></PermissionGate>) });
 
 function NewCar() {
   const { user, profile, ownerId } = useAuth();

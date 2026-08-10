@@ -19,7 +19,7 @@ import { ChevronLeft, ChevronRight, Download, Loader2, Sparkles } from "lucide-r
 import html2canvas from "html2canvas";
 
 export const Route = createFileRoute("/_authenticated/carrossel")({
-  component: CarrosselPage,
+  component: () => (<PermissionGate perm="content"><CarrosselPage /></PermissionGate>),
 });
 
 const TEMAS = [
